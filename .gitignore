@@ -1,0 +1,5 @@
+# ignore this entire directory
+data/
+
+# ignore any files w/ this extension
+*.DS_Store
