@@ -1,7 +1,7 @@
-{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf200
-{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
-{\colortbl;\red255\green255\blue255;}
-{\*\expandedcolortbl;;}
+{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf500
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red140\green148\blue165;\red37\green41\blue48;}
+{\*\expandedcolortbl;;\cssrgb\c61569\c64706\c70588;\cssrgb\c19216\c21176\c24706;}
 \margl1440\margr1440\vieww10800\viewh8400\viewkind0
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
 
@@ -21,12 +21,22 @@ Net_Align to Do\
 - train on sparse data\
 \
 - play w/ diff hyper parameters - e.g. regularization l1 of 0 predictions\
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
-\cf0 - try custom loss functions, a la focal loss (class imbalance toward 0)\
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
-\cf0 - understand output layer and adjust as needed\
+- try custom loss functions, a la focal loss (class imbalance toward 0)\
+- understand output layer and adjust as needed\
 \
 - get data into S3\
 - create pipeline for pulling data into notebook\
 \
-- create pipeline for tunability - select metrics - e.g. segment datasets for complexity \'93thresholds\'94}
+- create pipeline for tunability - select metrics - e.g. segment datasets for complexity \'93thresholds\'94\
+\
+- normalize according not to every country, but according to every product\
+\
+\pard\pardeftab720\sl300\partightenfactor0
+
+\f1\fs22 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 python -m pip install ipykernel\
+python -m ipykernel install --user\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \cb1 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 \
+}
