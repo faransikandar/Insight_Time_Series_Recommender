@@ -28,10 +28,10 @@ https://colab.research.google.com/drive/1P64VIbq6-FWVKYo503NT4y-_GgaIilgD
 # check relevant TF, keras, and GPU connections
 
 # show which version of TF working
-# !pip show tensorflow
+!pip show tensorflow
 
 # show which version of keras
-# !pip show keras
+!pip show keras
 
 '''
 # check GPU connection
@@ -82,21 +82,65 @@ drive.mount('/content/gdrive')
 '''
 
 #%%
-from source.data_load import *
+# load paths
+def load_paths(gdrive = False, ide = False):
+    '''
+    input: choose whether you are running the script in gdrive, as a shell, or locally (e.g. ide)
+    output: relative paths for directories, hdf_filename || can add other directories and files as needed
+    '''
+    cwd = os.getcwd()
+    cwd
+    # for shell
+    try:
+        directory = os.path.dirname(os.path.abspath(__file__))
+        hdf_filename = os.path.join(directory,'data/raw/data_17_0.h5')
+        clean_filename = os.path.join(directory,'data/processed/data_clean.h5')
+    except NameError:
+        # for gdrive
+        if gdrive == True:
+            directory = os.path.dirname(os.path.abspath('data_17_0.h5'))
+            hdf_filename = '/content/gdrive/My Drive/Colab Notebooks/Insight_Net_Align/data/raw/data_17_0.h5'
+            clean_filename = '/content/gdrive/My Drive/Colab Notebooks/Insight_Net_Align/data/processed/data_clean.h5'
+        # for local (e.g. IDE)
+        if ide == True:
+            directory = os.path.dirname(os.path.abspath('data_17_0.h5'))
+            directory
+            hdf_filename = os.path.join(directory,'data/raw/data_17_0.h5')
+            hdf_filename
+            clean_filename = os.path.join(directory,'data/processed/data_clean.h5')
+            clean_filename
+    dict_paths_def = {'cwd':cwd, 'directory':directory, 'hdf_filename':hdf_filename, 'clean_filename':clean_filename}
+    return dict_paths_def
 
-dict_data = data_load()
-dict_data
+dict_paths = load_paths(gdrive = False, ide = True)
 
-hdf = dict_data['hdf']
-#data_clean = dict_data['data_clean']
+# check path names
+dict_paths
+
+# load the data
+def load_data():
+    hdf = pd.HDFStore(dict_paths['hdf_filename'], mode='r')
+    data_clean = pd.HDFStore(dict_paths['clean_filename'], mode='r')
+    dict_load = {'hdf':hdf,'data_clean':data_clean}
+    return dict_load
+
+hdf = load_data()['hdf']
+data_clean = load_data()['data_clean']
+
+#%%
+data_clean.keys()
+
+#%%
+#df6_classes = data_clean.get('/df6_classes')
+#df_locations = data_clean.get('/df_locations')
+test = data_clean.get('/test')
+train = data_clean.get('/train')
+
+data_clean.close()
 
 #%%
 # preview keys in HDF
 hdf.keys()
-
-# testing
-
-hdf.get('/country_hsproduct4digit_year').head()
 
 # extract country summaries
 df_country = hdf.get('/country')
@@ -156,19 +200,7 @@ df2
 df4 = df4.fillna(0)
 df6 = df6.fillna(0)
 
-# clean the negatives
-mask = df2['export_value'] < 0
-df6 = df2[~mask]
-
-mask = df4['export_value'] < 0
-df6 = df4[~mask]
-
-mask = df6['export_value'] < 0
-df6 = df6[~mask]
-
 #%%
-# Calculate totals by country and year
-
 # df6.groupby(['location_id','year']).sum().reset_index() # if don't do reset_index(), then loc and year b/c part of index - does all columns
 
 def group_sum(df, groups, targets, reset_index = True):
@@ -184,29 +216,12 @@ def group_sum(df, groups, targets, reset_index = True):
         df_groupsum = df.groupby(groups)[targets].sum()
     return df_groupsum
 
-# MASTER FUNCTION FOR DATA CLEANING
-def clean_data(df):
-    df_groupsum = ( group_sum(df=df,groups=['location_id','year'],targets=['export_value','import_value'])
-    .rename(index=str, columns={'export_value':'export_total', 'import_value':'import_total'}) )
-
-    df_groupsum2 = ( 2 * group_sum(df=df,groups=['location_id','year'],targets=['export_value','import_value'])
-    .rename(index=str, columns={'export_value':'export_total', 'import_value':'import_total'}) )
-
-    return {'1':df_groupsum, '2':df_groupsum2}
-
-clean_data(df6).keys()
-
-df_group_x, df_group_x2 = clean_data(df=df6)
-
-df_group_x
 
 # sum the exports/imports, by location and year - will be used for improved normalization by country
 df6_groupsum = ( group_sum(df=df6,groups=['location_id','year'],targets=['export_value','import_value'])
 .rename(index=str, columns={'export_value':'export_total', 'import_value':'import_total'}) )
 
 df6_groupsum
-
-df6_groupsum.describe()
 
 #%%
 def data_filter(df,filter,values):
@@ -313,6 +328,20 @@ df6_05_14_trend.loc[~mask_neg, 'import_trend'] = df6_05_14_trend.loc[mask_neg, '
 df6_95_04_trend.describe()
 df6_95_04_trend
 
+# can think about normalizing export trend according to overall export volume during period average for each country or for each product
+# df6_95_04_trend.groupby(['location_id'])['export_period1'].sum()
+
+# pd.DataFrame(df.values*df2.values, columns=df.columns, index=df.index)
+
+# df6_95_04_trend.apply(lambda x:x.replace([-np.inf],x.min())).head(20)
+
+# for index, row in df6_95_04_trend.iterrows():
+#     if row['export_trend'] == np.nan:
+#         row['export_trend'] = 0
+#     elif row['export_trend'] == np.inf:
+#         row['export_trend'] = df6_95_04['export_trend'].max()
+
+
 #%%
 # merge df6_95_04_trend back into d56_95_04 by location and product (will be repeats of summed values)
 train = pd.merge(df6_95_04, df6_groupsum, on=['location_id','year'], how='inner')
@@ -356,15 +385,11 @@ def norm_std(data,targets):
 
 #%%
 # norm across all countries and years
-train['export_val_norm_all'] = norm_minmax(data=train,targets=['export_value'])
-train['export_val_std_all'] = norm_std(data=train,targets=['export_value'])
 train['export_pct_norm_all'] = norm_minmax(data=train,targets=['export_pct'])
 train['export_pct_std_all'] = norm_std(data=train,targets=['export_pct'])
 train.describe()
 train
 
-test['export_val_norm_all'] = norm_minmax(data=test,targets=['export_value'])
-test['export_val_std_all'] = norm_std(data=test,targets=['export_value'])
 test['export_pct_norm_all'] = norm_minmax(data=test,targets=['export_pct'])
 test['export_pct_std_all'] = norm_std(data=test,targets=['export_pct'])
 test.describe()
@@ -383,38 +408,20 @@ finally:
     temp
 '''
 
-train_val_norm = ( train.groupby(['location_id','year']).apply(norm_minmax, targets='export_value').to_frame()
-.rename(index=str, columns={'export_value':'export_val_norm'}).reset_index() )
-
-train_val_std = ( train.groupby(['location_id','year']).apply(norm_std, targets='export_value').to_frame()
-.rename(index=str, columns={'export_value':'export_val_std'}).reset_index() )
-
 train_pct_norm = ( train.groupby(['location_id','year']).apply(norm_minmax, targets='export_pct').to_frame()
 .rename(index=str, columns={'export_pct':'export_pct_norm'}).reset_index() )
 
 train_pct_std = ( train.groupby(['location_id','year']).apply(norm_std, targets='export_pct').to_frame()
 .rename(index=str, columns={'export_pct':'export_pct_std'}).reset_index() )
 
-train_trend_norm = ( train.groupby(['location_id']).apply(norm_minmax, targets='export_trend').to_frame()
-.rename(index=str, columns={'export_trend':'export_trend_norm'}).reset_index() )
-
 train_trend_std = ( train.groupby(['location_id']).apply(norm_std, targets='export_trend').to_frame()
 .rename(index=str, columns={'export_trend':'export_trend_std'}).reset_index() )
-
-test_val_norm = ( test.groupby(['location_id','year']).apply(norm_minmax, targets='export_value').to_frame()
-.rename(index=str, columns={'export_value':'export_val_norm'}).reset_index() )
-
-test_val_std = ( test.groupby(['location_id','year']).apply(norm_std, targets='export_value').to_frame()
-.rename(index=str, columns={'export_value':'export_val_std'}).reset_index() )
 
 test_pct_norm = ( test.groupby(['location_id','year']).apply(norm_minmax, targets='export_pct').to_frame()
 .rename(index=str, columns={'export_pct':'export_pct_norm'}).reset_index() )
 
 test_pct_std = ( test.groupby(['location_id','year']).apply(norm_std, targets='export_pct').to_frame()
 .rename(index=str, columns={'export_pct':'export_pct_std'}).reset_index() )
-
-test_trend_norm = ( test.groupby(['location_id']).apply(norm_minmax, targets='export_trend').to_frame()
-.rename(index=str, columns={'export_trend':'export_trend_norm'}).reset_index() )
 
 test_trend_std = ( test.groupby(['location_id']).apply(norm_std, targets='export_trend').to_frame()
 .rename(index=str, columns={'export_trend':'export_trend_std'}).reset_index() )
@@ -434,23 +441,20 @@ train_pct_norm
 train_trend_std
 train_trend_std.describe()
 train_pct_std
-test_trend_norm.describe()
-
-
 
 #%%
 
 # merge the pct and trend norms in
-train_temp = train.join([train_val_norm['export_val_norm'], train_val_std['export_val_std'], train_pct_norm['export_pct_norm'], train_pct_std['export_pct_std'], train_trend_norm['export_trend_norm'], train_trend_std['export_trend_std']])
+
+train_temp = train.join([train_pct_norm['export_pct_norm'], train_pct_std['export_pct_std'], train_trend_std['export_trend_std']])
 #train_temp = pd.merge(train, train_pct_norm['export_pct_norm'], train_pct_std['export_pct_std'], train_trend_norm['export_trend_norm'], left_index=True, right_index=True)
 train = train_temp
 train
 
-test_temp = test.join([test_val_norm['export_val_norm'], test_val_std['export_val_std'], test_pct_norm['export_pct_norm'], test_pct_std['export_pct_std'], test_trend_norm['export_trend_norm'], test_trend_std['export_trend_std']])
+test_temp = test.join([test_pct_norm['export_pct_norm'], test_pct_std['export_pct_std'], test_trend_std['export_trend_std']])
 #test_temp = pd.merge(test, test_pct_norm['export_pct_norm'], train_pct_std['export_pct_std'], test_trend_norm['export_trend_norm'], left_index=True, right_index=True)
 test = test_temp
 test
-
 
 #df6_train['export_pct_norm'] = (df6_train['export_pct']-df6_train['export_pct'].min())/(df6_train['export_pct'].max()-df6_train['export_pct'].min())
 
@@ -467,10 +471,6 @@ test.isnull().values.any()
 
 #%%
 ## Export data to HDF5 and pickle
-
-# close data_clean from beginning opening statement
-data_clean.close()
-data_clean.is_open
 
 # export to HDF5
 
@@ -493,12 +493,8 @@ for k, v in clean.items():
         else:
             v.to_hdf('data/processed/data_clean.h5', key=k, format='t')
 
-#%%
-'''
 data_clean = pd.HDFStore('data/processed/data_clean.h5', mode='r')
 data_clean.keys()
-
-data_clean.close()
 
 #pd.read_hdf('data.h5')
 train = data_clean.get('/train')
@@ -508,9 +504,6 @@ train.head()
 test.head()
 
 data_clean.close()
-'''
-
-#%%
 
 prep = ( {'df6':df6, 'df6_groupsum':df6_groupsum, 'df6_95_04':df6_95_04, 'df6_05_14':df6_05_14, 'df6_95_04_sum1':df6_95_04_sum1,
 'df6_95_04_sum2':df6_95_04_sum2, 'df6_95_04_trend':df6_95_04_trend, 'df6_05_14_sum1':df6_05_14_sum1, 'df6_05_14_sum2':df6_05_14_sum2,
@@ -519,7 +512,7 @@ prep = ( {'df6':df6, 'df6_groupsum':df6_groupsum, 'df6_95_04':df6_95_04, 'df6_05
 
 for k, v in prep.items():
     try:
-        if k == 'df6':
+        if k == 'train':
             v.to_hdf('data/preprocessed/data_prep.h5', key=k, mode='w')
         else:
             v.to_hdf('data/preprocessed/data_prep.h5', key=k)
@@ -529,12 +522,9 @@ for k, v in prep.items():
         else:
             v.to_hdf('data/preprocessed/data_prep.h5', key=k, format='t')
 
-'''
 data_prep = pd.HDFStore('data/preprocessed/data_prep.h5', mode='r')
 data_prep.keys()
-
 data_prep.close()
-'''
 
 
 '''
@@ -547,7 +537,6 @@ df6_classes.to_hdf('data_clean.h5', key='df6_classes')
 df_locations.to_hdf('data_clean.h5', key='df_locations')
 '''
 
-'''
 #%%
 
 # TESTING 123
@@ -556,8 +545,329 @@ df_locations.to_hdf('data_clean.h5', key='df_locations')
 train[train['year'] == 1995]
 test[test['year'] == 2005]
 
+
 #%%
 # visualize the data
 
 train.describe()
+
+
+train['export_value'].hist(bins=10)
+mask = train['export_pct'] == 0
+train[~mask]['export_pct'].hist(bins=10)
+
+
 '''
+#rng = np.random.RandomState(10)  # deterministic random data
+rng = train[~mask]['export_value']
+#a = np.hstack((rng.normal(size=1000),
+#                rng.normal(loc=5, scale=2, size=1000)))
+plt.hist(rng, bins='auto')  # arguments are passed to np.histogram
+plt.title("Histogram with 'auto' bins")
+plt.show()
+'''
+
+#%%
+# Define model
+
+# df6, for 2007
+n_countries = len(train['location_id'].unique())
+n_countries
+
+# for df6, for 2007
+n_products = len(train['product_id'].unique()) * len(train['year'].unique())
+n_products
+
+n_latent_factors = 5
+
+#%%
+"""## Create Dot Product Model - Simple Shallow Learning"""
+
+# Creating product embedding path
+product_input = Input(shape=[1], name='Product_Input')
+product_embedding = Embedding(n_products+1, n_latent_factors, name='Product_Embedding')(product_input)
+product_vec = Flatten(name='Flatten-Products')(product_embedding)
+print(product_input, product_embedding, product_vec)
+
+#%%
+# Creating country embedding path
+country_input = Input(shape=[1], name='Country-Input')
+country_embedding = Embedding(n_countries+1, n_latent_factors, name='Country_Embedding')(country_input)
+country_vec = Flatten(name='Flatten-Countries')(country_embedding)
+print(country_input, country_embedding, country_vec)
+
+#%%
+# Performing dot product and creating model; can change decay to 1e-6
+prod = Dot(name='Dot_Product', axes=1)([product_vec, country_vec])
+model_dot = Model([country_input, product_input], prod)
+adam = optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0, amsgrad=False, clipnorm=1)
+model_dot.compile(optimizer=adam, loss='mean_squared_error', metrics=['mean_squared_error','cosine_proximity'])
+model_dot.summary()
+
+#%%
+# Run the dot product model
+if os.path.exists('models/regression_model_dot.h5'):
+  model_dot = load_model('models/regression_model_dot.h5')
+else:
+  history_dot = model_dot.fit([train.location_id, train.product_id], train.export_pct_norm, batch_size=128, epochs=5, verbose=1)
+  model_dot.save('models/regression_model_dot')
+  plt.plot(history_dot.history['loss'])
+  plt.xlabel('Epochs')
+  plt.ylabel('Training Error')
+
+# regularization loss - l2 - worth forcing the weights to stay small; some weight is going
+
+#%%
+"""https://stackoverflow.com/questions/37232782/nan-loss-when-training-regression-network
+
+Loss probably not working because of exploding gradient problem?
+"""
+
+#%%
+# Evaluate model_dot on 2008
+model_dot.evaluate([test.location_id, test.product_id], test.export_pct_norm)
+
+#%%
+# Make predictions using model_dot - probably need to un-normalize from minmax
+predictions_dot = model_dot.predict([test.location_id.head(10), test.product_id.head(10)])
+
+# Denormalize - different denormalization needed depending on target used
+# for i in range(0,10):
+#     predictions_dot[i] = predictions_dot[i]*(test['export_value'].max()-test['export_value'].min())+test['export_value'].min()
+
+predictions_dot
+
+#%%
+# Compare predictions with actual
+[print(predictions_dot[i], test.export_pct_norm.iloc[i]) for i in range(0,10)]
+
+'''
+# Evaluate model_dot on 2017
+model_dot.evaluate([df6_2017_norm.location_id, df6_2017_norm.product_id], df6_2017_norm.export_value)
+'''
+
+'''
+# Make predictions using model_dot - probably need to un-normalize from minmax
+predictions_dot = model_dot.predict([df6_2017_norm.location_id.head(10), df6_2017_norm.product_id.head(10)])
+
+# Denormalize
+for i in range(0,10):
+    predictions_dot[i] = predictions_dot[i]*(df6_2017['export_value'].max()-df6_2017['export_value'].min())+df6_2017['export_value'].min()
+
+predictions_dot
+
+# Compare predictions with actual
+[print(predictions_dot[i], df6_2017.export_value.iloc[i]) for i in range(0,10)]
+'''
+
+#%%
+"""## Creating Neural Network"""
+
+# Creating product embedding path
+product_input = Input(shape=[1], name='Product-Input')
+product_embedding = Embedding(n_products+1, n_latent_factors, name='Product-Embedding')(product_input)
+product_vec = Flatten(name='Flatten-Products')(product_embedding)
+
+#%%
+# Creating country embedding path
+country_input = Input(shape=[1], name='Country-Input')
+country_embedding = Embedding(n_countries+1, n_latent_factors, name='Country-Embedding')(country_input)
+country_vec = Flatten(name='Flatten-Countries')(country_embedding)
+
+#%%
+'''
+# Compile model
+# can add regularization or dropout? kernel_regularizer=regularizers.l2(0.01), activity_regularizer=regularizers.l1(0.01) - leads to excessively slow learning/very high loss
+
+# too many 0's with relu activation - try tanh or LeakyReLU(0.3); softmax for probability
+
+# Concatenate features
+conc = Concatenate()([product_vec, country_vec])
+
+# Add fully-connected layers
+fc1 = Dense(128)(conc)
+fc2 = advanced_activations.LeakyReLU(alpha=0.3)(fc1)
+fc3 = Dense(32)(fc2)
+fc4 = advanced_activations.LeakyReLU(alpha=0.3)(fc3)
+out = Dense(1)(fc4)
+
+# Create model and compile it
+model_nn = Model([country_input, product_input], out)
+model_nn.compile('adam', 'mean_squared_error', metrics=['cosine_proximity'])
+'''
+
+#%%
+# Compile model
+# can add regularization or dropout? kernel_regularizer=regularizers.l2(0.01), activity_regularizer=regularizers.l1(0.01) - leads to excessively slow learning/very high loss
+
+# too many 0's with relu activation - try tanh or LeakyReLU(0.3); softmax for probability
+
+# Concatenate features
+conc = Concatenate()([product_vec, country_vec])
+
+# Add fully-connected layers
+fc1 = Dense(128, activation='relu', kernel_regularizer=regularizers.l2(0.01), activity_regularizer=regularizers.l1(0.01))(conc)
+fc2 = Dense(32, activation='relu', kernel_regularizer=regularizers.l2(0.01), activity_regularizer=regularizers.l1(0.01))(fc1)
+out = Dense(1)(fc2)
+
+# Create model and compile it
+model_nn = Model([country_input, product_input], out)
+model_nn.compile('adam', 'mean_squared_error', metrics=['mean_squared_error','cosine_proximity'])
+model_nn.summary()
+
+#%%
+# Run the NN model
+if os.path.exists('models/regression_model_nn.h5'):
+  model_nn = load_model('models/regression_model_nn.h5')
+else:
+  history_nn = model_nn.fit([train.location_id, train.product_id], train.export_pct_norm, epochs=5, verbose=1)
+  model_nn.save('models/regression_model_nn.h5')
+  plt.plot(history_nn.history['loss'])
+  plt.xlabel('Number of Epochs')
+  plt.ylabel('Training Error')
+
+#%%
+# Evaluate model_nn on 2008
+model_nn.evaluate([test.location_id, test.product_id], test.export_pct_norm)
+
+#%%
+# Make predictions using model_nn
+predictions_nn = model_nn.predict([test.location_id.head(10), test.product_id.head(10)])
+
+# Denormalize - different denormalization needed depending on target used
+# for i in range(0,10):
+#     predictions_nn[i] = predictions_nn[i]*(test['export_value'].max()-test['export_value'].min())+test['export_value'].min()
+
+predictions_nn
+
+# Compare predictions with actual
+[print(predictions_nn[i], test.export_pct_norm.iloc[i]) for i in range(0,10)]
+
+'''
+# Evaluate model_nn on 2017
+model_nn.evaluate([df6_2017_norm.location_id, df6_2017_norm.product_id], df6_2017_norm.export_value)
+'''
+
+'''
+# Make predictions using model_nn
+predictions_nn = model_nn.predict([df6_2017_norm.location_id.head(10), df6_2017_norm.product_id.head(10)])
+
+# Denormalize
+for i in range(0,10):
+    predictions_nn[i] = predictions_nn[i]*(df6_2017['export_value'].max()-df6_2017['export_value'].min())+df6_2017['export_value'].min()
+
+predictions_nn
+
+# Compare predictions with actual
+[print(predictions_nn[i], df6_2017.export_value.iloc[i]) for i in range(0,10)]
+'''
+
+"""#Visualizing Embeddings
+Embeddings are weights that are learned to represent some specific variable like products and countries in our case and, therefore, we can not only use them to get good results on our problem but also extract insight about our data.
+"""
+
+#%%
+# Extract embeddings
+product_em = model_nn.get_layer('Product-Embedding')
+product_em_weights = product_em.get_weights()[0]
+
+product_em_weights[:5]
+
+#%%
+pca = PCA(n_components=2)
+pca_result = pca.fit_transform(product_em_weights)
+sns.scatterplot(x=pca_result[:,0], y=pca_result[:,1])
+
+#%%
+product_em_weights = product_em_weights / np.linalg.norm(product_em_weights, axis=1).reshape((-1,1))
+product_em_weights[0][:10]
+np.sum(np.square(product_em_weights[0]))
+
+#%%
+pca = PCA(n_components=2)
+pca_result = pca.fit_transform(product_em_weights)
+sns.scatterplot(x=pca_result[:,0], y=pca_result[:,1])
+
+#%%
+tsne = TSNE(n_components=2, verbose=1, perplexity=40, n_iter=300)
+tnse_results = tsne.fit_transform(product_em_weights)
+
+#%%
+sns.scatterplot(x=tnse_results[:,0], y=tnse_results[:,1])
+
+"""#Making Recommendations"""
+#%%
+len(train.product_id)
+
+# Creating dataset for making recommendations for the first country
+product_data = np.array(list(set(train.product_id)))
+product_data
+
+#%%
+len(product_data)
+
+train.loc[train['product_id']==8192].head()
+
+country = np.array([1 for i in range(len(product_data))])
+country[:5]
+
+#%%
+# show normalized prediction values
+predictions = model_nn.predict([country, product_data])
+predictions
+
+#%%
+predictions = np.array([a[0] for a in predictions])
+predictions
+
+# denormalize prediction values - different needed
+# for i in range(len(predictions)):
+#     predictions[i] = predictions[i]*(df6_2007['export_value'].max()-df6_2007['export_value'].min())+df6_2007['export_value'].min()
+
+predictions
+
+#%%
+len(predictions)
+predictions.min()
+
+# show recommended products (i.e. top export values)
+recommended_product_ids = (-predictions).argsort()[:5]
+recommended_product_ids
+
+#%%
+# print predicted export_value - normalized
+predictions[recommended_product_ids]
+
+#%%
+# show predicted product details - first all products
+df6_classes = df6_classes.reset_index()
+df6_classes.head()
+
+#%%
+df6_classes[df6_classes['index'].isin(recommended_product_ids)]
+
+#%%
+df6_classes.iloc[recommended_product_ids]
+
+#%%
+test.loc[test['product_id']==3366]
+
+test.loc[8366:8380]
+
+
+
+#%%
+# Make predictions using model_nn
+inference = model_nn.predict([test.location_id.head(10), test.product_id.head(10)])
+
+# Denormalize
+# for i in range(0,10):
+#     inference[i] = inference[i]*(df6_2008['export_value'].max()-df6_2008['export_value'].min())+df6_2008['export_value'].min()
+
+inference
+
+# Compare predictions with actual
+[print(inference[i], test.export_value.iloc[i]) for i in range(0,10)]
+
+recommended_product_ids2 = (-inference).argsort()[:10]
+recommended_product_ids2
