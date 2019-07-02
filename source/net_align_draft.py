@@ -16,9 +16,12 @@ Notes:
 #%%
 # imports
 import os
+import matplotlib.pyplot as plt
 import pandas as pd
 from collections import Counter, OrderedDict
 from itertools import chain
+
+#%%
 
 #%%
 # check getcwd

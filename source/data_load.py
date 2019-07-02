@@ -1,3 +1,4 @@
+#%%
 import os
 import pandas as pd
 import sys
@@ -48,3 +49,11 @@ def data_load():
     return dict_load
 
 data_load()
+
+loader = data_load()['data_clean']
+
+loader.keys()
+
+temp = loader.get('/train')
+
+temp

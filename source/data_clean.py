@@ -50,16 +50,15 @@ import time
 import warnings
 import math
 import matplotlib.pyplot as plt
-import nltk
 import numpy as np
 import pandas as pd
 import pickle
+import re
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import seaborn as sns
 from collections import Counter, defaultdict, OrderedDict
 from itertools import chain
-from nltk.tokenize import sent_tokenize, word_tokenize
 from keras import optimizers, regularizers
 from keras.callbacks import ModelCheckpoint
 from keras.layers import advanced_activations, Concatenate, Dense, Dot, Dropout, Embedding, Flatten, Input, LSTM, Reshape
@@ -143,6 +142,7 @@ df6 = hdf.get('/country_hsproduct6digit_year')
 
 print(df6.shape)
 df6.head()
+len(df6['product_id'].unique())
 
 #%%
 # clean the NaNs
@@ -158,10 +158,10 @@ df6 = df6.fillna(0)
 
 # clean the negatives
 mask = df2['export_value'] < 0
-df6 = df2[~mask]
+df2 = df2[~mask]
 
 mask = df4['export_value'] < 0
-df6 = df4[~mask]
+df4 = df4[~mask]
 
 mask = df6['export_value'] < 0
 df6 = df6[~mask]
@@ -184,6 +184,7 @@ def group_sum(df, groups, targets, reset_index = True):
         df_groupsum = df.groupby(groups)[targets].sum()
     return df_groupsum
 
+'''
 # MASTER FUNCTION FOR DATA CLEANING
 def clean_data(df):
     df_groupsum = ( group_sum(df=df,groups=['location_id','year'],targets=['export_value','import_value'])
@@ -199,6 +200,7 @@ clean_data(df6).keys()
 df_group_x, df_group_x2 = clean_data(df=df6)
 
 df_group_x
+'''
 
 # sum the exports/imports, by location and year - will be used for improved normalization by country
 df6_groupsum = ( group_sum(df=df6,groups=['location_id','year'],targets=['export_value','import_value'])
@@ -280,6 +282,18 @@ df6_95_04_trend[~mask_neg]
 df6_95_04_trend.loc[~mask_pos, 'export_trend'] = df6_95_04_trend.loc[mask_pos, 'export_trend'].max()
 df6_95_04_trend.loc[~mask_neg, 'export_trend'] = df6_95_04_trend.loc[mask_neg, 'export_trend'].min()
 
+mask_pos = baseline['export_pct_change'] != np.inf # returns values which are NOT inf
+mask_neg = baseline['export_pct_change'] != -np.inf # returns values which are NOT -inf
+
+# DO IT THIS WAY INSTEAD!!
+# baseline[~mask_pos]
+#
+# baseline['export_pct_change'] = np.where(~mask_pos, baseline['export_total_test'], baseline['export_pct_change'])
+# baseline[~mask_pos]
+#
+# baseline['export_pct_change'] = np.where(~mask_neg, baseline['export_total_test'], baseline['export_pct_change'])
+# baseline[~mask_neg]
+
 # impute export inf/-inf with max/min trend for 05_14
 mask_pos = df6_05_14_trend['export_trend'] != np.inf
 mask_pos
@@ -327,7 +341,7 @@ print(test.shape)
 test
 
 #%%
-# normalize exports on total exports of country by year
+# Define train and test - make sure to normalize AFTER this so as not to have data leakage
 cols = ['location_id','product_id','year','export_value','export_total','export_period1','export_period2','export_trend']
 train = train.copy(deep=True)
 train = train[cols]
@@ -338,7 +352,7 @@ test = test.copy(deep=True)
 test
 
 #%%
-# calculate product percent of total exports
+# Calculate product percent of total exports
 train['export_pct'] = (train['export_value']/train['export_total'])
 train.head()
 
@@ -373,15 +387,6 @@ test
 
 #%%
 # normalize by country and year ??? doesn't seem to get me what I want - possible that you don't WANT to normalize by country and year, because perhaps overall global trade of goods is more important
-'''
-try:
-    start = time.perf_counter()
-    temp = train.groupby(['location_id','year']).apply(norm_minmax, targets='export_pct').to_frame().reset_index().rename('export_pct':'export_pct_norm')
-    end = time.perf_counter()
-finally:
-    print('run time: ', end-start)
-    temp
-'''
 
 train_val_norm = ( train.groupby(['location_id','year']).apply(norm_minmax, targets='export_value').to_frame()
 .rename(index=str, columns={'export_value':'export_val_norm'}).reset_index() )
@@ -430,13 +435,8 @@ test_trend_std = ( test.groupby(['location_id']).apply(norm_std, targets='export
 # df6.groupby(['location_id','year'])['export_value'].sum().reset_index()
 '''
 
-train_pct_norm
-train_trend_std
-train_trend_std.describe()
 train_pct_std
 test_trend_norm.describe()
-
-
 
 #%%
 
@@ -454,6 +454,28 @@ test
 
 #df6_train['export_pct_norm'] = (df6_train['export_pct']-df6_train['export_pct'].min())/(df6_train['export_pct'].max()-df6_train['export_pct'].min())
 
+
+#%%
+# Classify -1/0/1 for export trend for TRAIN
+mask_pos = train['export_trend'] > 0
+mask_neg = train['export_trend'] < 0
+mask_zero = train['export_trend'] == 0
+
+train['export_trend_class'] = np.select([mask_pos,mask_neg], [1,-1], default=0)
+
+# Make percentile rank for export trend for TRAIN
+train['export_trend_pct_rank'] = train['export_trend'].rank(pct=True)
+
+# Classify -1/0/1 for export trend for TEST
+mask_pos = test['export_trend'] > 0
+mask_neg = test['export_trend'] < 0
+mask_zero = test['export_trend'] == 0
+
+test['export_trend_class'] = np.select([mask_pos,mask_neg], [1,-1], default=0)
+
+# Make percentile rank for export trend for TEST
+test['export_trend_pct_rank'] = test['export_trend'].rank(pct=True)
+
 #%%
 # Final NaN cleaning
 train[train.isnull()]
@@ -468,10 +490,6 @@ test.isnull().values.any()
 #%%
 ## Export data to HDF5 and pickle
 
-# close data_clean from beginning opening statement
-data_clean.close()
-data_clean.is_open
-
 # export to HDF5
 
 clean = ( {'train':train, 'test':test, 'df_country':df_country, 'df4_lookback':df4_lookback, 'df_country_lookback':df_country_lookback,
@@ -481,34 +499,25 @@ for key, value in clean.items():
     print(key)
 
 # always make train the first item in the dict
+directory = os.path.dirname(os.path.abspath('data_clean.h5'))
+directory
+clean_filename = os.path.join(directory,'data/processed/data_clean.h5')
+clean_filename
+
+if os.path.exists(clean_filename):
+    os.remove(clean_filename)
+
 for k, v in clean.items():
     try:
         if k == 'train':
-            v.to_hdf('data/processed/data_clean.h5', key=k, mode='w')
+            v.to_hdf('data/processed/data_clean.h5', key=k)
         else:
             v.to_hdf('data/processed/data_clean.h5', key=k)
     except NotImplementedError:
         if k == 'train':
-            v.to_hdf('data/processed/data_clean.h5', key=k, mode='w', format='t')
+            v.to_hdf('data/processed/data_clean.h5', key=k, format='t')
         else:
             v.to_hdf('data/processed/data_clean.h5', key=k, format='t')
-
-#%%
-'''
-data_clean = pd.HDFStore('data/processed/data_clean.h5', mode='r')
-data_clean.keys()
-
-data_clean.close()
-
-#pd.read_hdf('data.h5')
-train = data_clean.get('/train')
-test = data_clean.get('/test')
-
-train.head()
-test.head()
-
-data_clean.close()
-'''
 
 #%%
 
@@ -529,35 +538,13 @@ for k, v in prep.items():
         else:
             v.to_hdf('data/preprocessed/data_prep.h5', key=k, format='t')
 
-'''
-data_prep = pd.HDFStore('data/preprocessed/data_prep.h5', mode='r')
-data_prep.keys()
-
-data_prep.close()
-'''
-
-
-'''
-train.to_hdf('data_clean.h5', key='train', mode='w')
-test.to_hdf('data_clean.h5', key='test')
-df_country.to_hdf('data_clean.h5', key='df_country', format='t')
-df4_lookback.to_hdf('data_clean.h5', key='df4_lookback', format='t')
-df_country_lookback.to_hdf('data_clean.h5', key='df_country_lookback', format='t')
-df6_classes.to_hdf('data_clean.h5', key='df6_classes')
-df_locations.to_hdf('data_clean.h5', key='df_locations')
-'''
-
-'''
 #%%
-
 # TESTING 123
 
-# FAIL-SAFE v0
-train[train['year'] == 1995]
-test[test['year'] == 2005]
+train['export_val_std_all'].var()
+
+# visualize the data
+train.describe()
 
 #%%
-# visualize the data
-
-train.describe()
-'''
+test.describe()
