@@ -188,10 +188,10 @@ def group_sum(df, groups, targets, reset_index = True):
 # MASTER FUNCTION FOR DATA CLEANING
 def clean_data(df):
     df_groupsum = ( group_sum(df=df,groups=['location_id','year'],targets=['export_value','import_value'])
-    .rename(index=str, columns={'export_value':'export_total', 'import_value':'import_total'}) )
+    .rename(index=str, columns={'export_value':'export_total_loc_year', 'import_value':'import_total_loc_year'}) )
 
     df_groupsum2 = ( 2 * group_sum(df=df,groups=['location_id','year'],targets=['export_value','import_value'])
-    .rename(index=str, columns={'export_value':'export_total', 'import_value':'import_total'}) )
+    .rename(index=str, columns={'export_value':'export_total_loc_year', 'import_value':'import_total_loc_year'}) )
 
     return {'1':df_groupsum, '2':df_groupsum2}
 
@@ -204,7 +204,7 @@ df_group_x
 
 # sum the exports/imports, by location and year - will be used for improved normalization by country
 df6_groupsum = ( group_sum(df=df6,groups=['location_id','year'],targets=['export_value','import_value'])
-.rename(index=str, columns={'export_value':'export_total', 'import_value':'import_total'}) )
+.rename(index=str, columns={'export_value':'export_total_loc_year', 'import_value':'import_total_loc_year'}) )
 
 df6_groupsum
 
@@ -242,6 +242,12 @@ df6_95_04_sum2 = ( df6_95_04.loc[df6_95_04['year'].isin(range(2000,2005))].group
 
 df6_95_04_sum2
 
+# TRAIN total exports/imports for a given product over ENTIRE 10 year period
+df6_95_04_sum_total = ( df6_95_04.loc[df6_95_04['year'].isin(range(1995,2005))].groupby(['location_id','product_id'])['export_value','import_value']
+.sum().reset_index().rename(index=str, columns={'export_value':'export_period_total', 'import_value':'import_period_total'}) )
+
+df6_95_04_sum_total
+
 # TEST sum the exports/imports across the FIRST half of the time slice - for trend analysis
 df6_05_14_sum1 = ( df6_05_14.loc[df6_05_14['year'].isin(range(2005,2010))].groupby(['location_id','product_id'])['export_value','import_value']
 .sum().reset_index().rename(index=str, columns={'export_value':'export_period1', 'import_value':'import_period1'}) )
@@ -254,15 +260,23 @@ df6_05_14_sum2 = ( df6_05_14.loc[df6_05_14['year'].isin(range(2010,2015))].group
 
 df6_05_14_sum2
 
+# TEST total exports/imports for a given product over ENTIRE 10 year period
+df6_05_14_sum_total = ( df6_05_14.loc[df6_05_14['year'].isin(range(2005,2015))].groupby(['location_id','product_id'])['export_value','import_value']
+.sum().reset_index().rename(index=str, columns={'export_value':'export_period_total', 'import_value':'import_period_total'}) )
+
+df6_05_14_sum_total
+
 #%%
-# calculate and merge sum2 and export/import trends back into sum1 df; fill NaNs with 0 (if 0 base value)
+# calculate and merge sum2, period_total and export/import trends back into sum1 df; fill NaNs with 0 (if 0 base value)
 df6_95_04_trend = ( df6_95_04_sum1.assign( export_period2 = df6_95_04_sum2['export_period2'], import_period2 = df6_95_04_sum2['import_period2'],
-export_trend = lambda x: ((x.export_period2 - df6_95_04_sum1['export_period1'])/x.export_period2).fillna(0),
-import_trend = lambda x: ((x.import_period2 - df6_95_04_sum1['import_period1'])/x.import_period2).fillna(0) ) )
+export_trend = lambda x: ((x.export_period2 - df6_95_04_sum1['export_period1'])/x.export_period1).fillna(0),
+import_trend = lambda x: ((x.import_period2 - df6_95_04_sum1['import_period1'])/x.import_period1).fillna(0),
+export_period_total = df6_95_04_sum_total['export_period_total'], import_period_total = df6_95_04_sum_total['import_period_total'] ) )
 
 df6_05_14_trend = ( df6_05_14_sum1.assign( export_period2 = df6_05_14_sum2['export_period2'], import_period2 = df6_05_14_sum2['import_period2'],
-export_trend = lambda x: ((x.export_period2 - df6_05_14_sum1['export_period1'])/x.export_period2).fillna(0),
-import_trend = lambda x: ((x.import_period2 - df6_05_14_sum1['import_period1'])/x.import_period2).fillna(0) ) )
+export_trend = lambda x: ((x.export_period2 - df6_05_14_sum1['export_period1'])/x.export_period1).fillna(0),
+import_trend = lambda x: ((x.import_period2 - df6_05_14_sum1['import_period1'])/x.import_period1).fillna(0),
+export_period_total = df6_05_14_sum_total['export_period_total'], import_period_total = df6_05_14_sum_total['import_period_total'] ) )
 
 # how to use assign to create multiple values in df
 # df = df.assign(Val10_minus_Val1 = df['Val10'] - df['Val1'], log_result = lambda x: np.log(x.Val10_minus_Val1) )
@@ -277,42 +291,41 @@ mask_pos = df6_95_04_trend['export_trend'] != np.inf
 mask_pos
 mask_neg = df6_95_04_trend['export_trend'] != -np.inf
 mask_neg
-df6_95_04_trend[~mask_neg]
+df6_95_04_trend[~mask_pos]
 
-df6_95_04_trend.loc[~mask_pos, 'export_trend'] = df6_95_04_trend.loc[mask_pos, 'export_trend'].max()
-df6_95_04_trend.loc[~mask_neg, 'export_trend'] = df6_95_04_trend.loc[mask_neg, 'export_trend'].min()
-
-mask_pos = baseline['export_pct_change'] != np.inf # returns values which are NOT inf
-mask_neg = baseline['export_pct_change'] != -np.inf # returns values which are NOT -inf
-
-# DO IT THIS WAY INSTEAD!!
-# baseline[~mask_pos]
-#
-# baseline['export_pct_change'] = np.where(~mask_pos, baseline['export_total_test'], baseline['export_pct_change'])
-# baseline[~mask_pos]
-#
-# baseline['export_pct_change'] = np.where(~mask_neg, baseline['export_total_test'], baseline['export_pct_change'])
-# baseline[~mask_neg]
+#df6_95_04_trend.loc[~mask_pos, 'export_trend'] = df6_95_04_trend.loc[mask_pos, 'export_trend'].max() # old method
+#df6_95_04_trend.loc[~mask_neg, 'export_trend'] = df6_95_04_trend.loc[mask_neg, 'export_trend'].min()
+df6_95_04_trend['export_trend'] = np.where(~mask_pos, df6_95_04_trend['export_period2'], df6_95_04_trend['export_trend']) # if div by 0, replaces inf w/ export_period2 value
+df6_95_04_trend['export_trend'] = np.where(~mask_neg, -df6_95_04_trend['export_period2'], df6_95_04_trend['export_trend']) # if div by 0, replaces -inf w/ -export_period2 value
 
 # impute export inf/-inf with max/min trend for 05_14
 mask_pos = df6_05_14_trend['export_trend'] != np.inf
 mask_pos
 mask_neg = df6_05_14_trend['export_trend'] != -np.inf
 mask_neg
-df6_05_14_trend[~mask_neg]
+df6_05_14_trend[~mask_pos]
 
-df6_05_14_trend.loc[~mask_pos, 'export_trend'] = df6_05_14_trend.loc[mask_pos, 'export_trend'].max()
-df6_05_14_trend.loc[~mask_neg, 'export_trend'] = df6_05_14_trend.loc[mask_neg, 'export_trend'].min()
+# df6_05_14_trend.loc[~mask_pos, 'export_trend'] = df6_05_14_trend.loc[mask_pos, 'export_trend'].max()
+# df6_05_14_trend.loc[~mask_neg, 'export_trend'] = df6_05_14_trend.loc[mask_neg, 'export_trend'].min()
+df6_05_14_trend['export_trend'] = np.where(~mask_pos, df6_05_14_trend['export_period2'], df6_05_14_trend['export_trend']) # if div by 0, replaces inf w/ export_period2 value
+df6_05_14_trend['export_trend'] = np.where(~mask_neg, -df6_05_14_trend['export_period2'], df6_05_14_trend['export_trend']) # if div by 0, replaces -inf w/ -export_period2 value
+
+df6_05_14_trend[~mask_pos]
 
 # impute import inf/-inf with max/min trend for 95_04
 mask_pos = df6_95_04_trend['import_trend'] != np.inf
 mask_pos
 mask_neg = df6_95_04_trend['import_trend'] != -np.inf
 mask_neg
+
 df6_95_04_trend[~mask_neg]
 
-df6_95_04_trend.loc[~mask_pos, 'import_trend'] = df6_95_04_trend.loc[mask_pos, 'import_trend'].max()
-df6_95_04_trend.loc[~mask_neg, 'import_trend'] = df6_95_04_trend.loc[mask_neg, 'import_trend'].min()
+# df6_95_04_trend.loc[~mask_pos, 'import_trend'] = df6_95_04_trend.loc[mask_pos, 'import_trend'].max()
+# df6_95_04_trend.loc[~mask_neg, 'import_trend'] = df6_95_04_trend.loc[mask_neg, 'import_trend'].min()
+df6_95_04_trend['import_trend'] = np.where(~mask_pos, df6_95_04_trend['import_period2'], df6_95_04_trend['import_trend']) # if div by 0, replaces inf w/ export_period2 value
+df6_95_04_trend['import_trend'] = np.where(~mask_neg, -df6_95_04_trend['import_period2'], df6_95_04_trend['import_trend']) # if div by 0, replaces -inf w/ -export_period2 value
+
+df6_95_04_trend[~mask_pos]
 
 # impute import inf/-inf with max/min trend for 05_14
 mask_pos = df6_05_14_trend['import_trend'] != np.inf
@@ -321,8 +334,11 @@ mask_neg = df6_05_14_trend['import_trend'] != -np.inf
 mask_neg
 df6_05_14_trend[~mask_neg]
 
-df6_05_14_trend.loc[~mask_pos, 'import_trend'] = df6_05_14_trend.loc[mask_pos, 'import_trend'].max()
-df6_05_14_trend.loc[~mask_neg, 'import_trend'] = df6_05_14_trend.loc[mask_neg, 'import_trend'].min()
+# df6_05_14_trend.loc[~mask_pos, 'import_trend'] = df6_05_14_trend.loc[mask_pos, 'import_trend'].max()
+# df6_05_14_trend.loc[~mask_neg, 'import_trend'] = df6_05_14_trend.loc[mask_neg, 'import_trend'].min()
+df6_05_14_trend['import_trend'] = np.where(~mask_pos, df6_05_14_trend['import_period2'], df6_05_14_trend['import_trend']) # if div by 0, replaces inf w/ export_period2 value
+df6_05_14_trend['import_trend'] = np.where(~mask_neg, -df6_05_14_trend['import_period2'], df6_05_14_trend['import_trend']) # if div by 0, replaces -inf w/ -export_period2 value
+
 
 df6_95_04_trend.describe()
 df6_95_04_trend
@@ -342,7 +358,7 @@ test
 
 #%%
 # Define train and test - make sure to normalize AFTER this so as not to have data leakage
-cols = ['location_id','product_id','year','export_value','export_total','export_period1','export_period2','export_trend']
+cols = ['location_id','product_id','year','export_value','export_total_loc_year','export_period1','export_period2','export_period_total','export_trend']
 train = train.copy(deep=True)
 train = train[cols]
 train
@@ -352,11 +368,11 @@ test = test.copy(deep=True)
 test
 
 #%%
-# Calculate product percent of total exports
-train['export_pct'] = (train['export_value']/train['export_total'])
+# Calculate product percent of total exports for that country and year
+train['export_pct'] = (train['export_value']/train['export_total_loc_year'])
 train.head()
 
-test['export_pct'] = (test['export_value']/test['export_total'])
+test['export_pct'] = (test['export_value']/test['export_total_loc_year'])
 test.head()
 
 

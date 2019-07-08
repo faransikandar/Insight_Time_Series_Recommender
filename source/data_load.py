@@ -43,8 +43,8 @@ def data_load():
     dict_paths
 
     # load the data
-    hdf = pd.HDFStore(dict_paths['hdf_filename'], mode='r')
-    data_clean = pd.HDFStore(dict_paths['clean_filename'], mode='r')
+    hdf = pd.HDFStore(dict_paths['hdf_filename'], mode = 'r')
+    data_clean = pd.HDFStore(dict_paths['clean_filename'], mode = 'r') # mode = 'r'
     dict_load = {'hdf':hdf,'data_clean':data_clean}
     return dict_load
 
