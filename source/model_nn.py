@@ -1,6 +1,30 @@
 #%%
+# inspired from https://github.com/TannerGilbert/Tutorials/blob/master/Recommendation%20System/Recommendation%20System.ipynb
+
+#%%
 import os
 import sys
+import time
+import warnings
+import math
+import matplotlib.pyplot as plt
+import nltk
+import numpy as np
+import pandas as pd
+import pickle
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+import seaborn as sns
+from collections import Counter, defaultdict, OrderedDict
+from itertools import chain
+from keras import optimizers, regularizers
+from keras.callbacks import ModelCheckpoint
+from keras.layers import advanced_activations, Concatenate, Dense, Dot, Dropout, Embedding, Flatten, Input, LSTM, Reshape
+from keras.models import load_model, Model, Sequential
+from keras.utils import np_utils
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+from sklearn.model_selection import train_test_split
 
 from source.data_load import *
 
@@ -128,7 +152,6 @@ adam = optimizers.Adam(lr=0.01, beta_1=0.9, beta_2=0.999, epsilon=None, decay=2e
 
 model_nn.compile(optimizer=adam, loss='mean_squared_error', metrics=['logcosh', 'mean_absolute_error', 'mean_squared_error','cosine_proximity'])
 model_nn.summary()
-
 
 #%%
 # Run the NN model
