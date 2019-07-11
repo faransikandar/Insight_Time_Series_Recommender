@@ -133,7 +133,7 @@ history_filename
 #%%
 # Load the model
 model_dot = load_model(model_filename)
-model_dot
+model_dot.summary()
 
 # Load the history
 history_dot = pickle.load(open(history_filename, 'rb'))
@@ -247,9 +247,9 @@ df_dot.describe()
 
 #%%
 # Which country to make prediction for
-df_locations[df_locations['name_en'] == 'France']
+df_locations[df_locations['name_en'] == 'Ireland']
 
-location = int(df_locations[df_locations['name_en'] == 'France']['index'])
+location = int(df_locations[df_locations['name_en'] == 'Ireland']['index'])
 location
 
 #%%

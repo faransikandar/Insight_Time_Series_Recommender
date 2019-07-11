@@ -25,15 +25,15 @@ https://colab.research.google.com/drive/1P64VIbq6-FWVKYo503NT4y-_GgaIilgD
 """
 
 #%%
+'''
 # check relevant TF, keras, and GPU connections
 
 # show which version of TF working
-# !pip show tensorflow
+!pip show tensorflow
 
 # show which version of keras
-# !pip show keras
+!pip show keras
 
-'''
 # check GPU connection
 import tensorflow as tf
 device_name = tf.test.gpu_device_name()
@@ -45,29 +45,28 @@ print('Found GPU at: {}'.format(device_name))
 #%%
 # import libraries
 import os
-import sys
-import time
-import warnings
-import math
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import pickle
-import re
-from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
-import seaborn as sns
-from collections import Counter, defaultdict, OrderedDict
-from itertools import chain
 from keras import optimizers, regularizers
 from keras.callbacks import ModelCheckpoint
 from keras.layers import advanced_activations, Concatenate, Dense, Dot, Dropout, Embedding, Flatten, Input, LSTM, Reshape
 from keras.models import load_model, Model, Sequential
-from keras.preprocessing.text import Tokenizer
-from keras.utils import np_utils
-from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
-from sklearn.model_selection import train_test_split
+
+# import sys
+# import time
+# import warnings
+# import re
+# import math
+# import pickle
+# from collections import Counter, defaultdict, OrderedDict
+# from itertools import chain
+# from keras.utils import np_utils
+# from sklearn.model_selection import train_test_split
+# from sklearn.manifold import TSNE
+# import seaborn as sns
+
+from source.data_load import *
 
 #%%
 """
@@ -81,8 +80,7 @@ drive.mount('/content/gdrive')
 '''
 
 #%%
-from source.data_load import *
-
+# load the data using data_load()
 dict_data = data_load()
 dict_data
 
@@ -402,7 +400,9 @@ test
 
 
 #%%
+# perform various normalization strategies, grouping by country/year/across all/etc and for raw values vs percents of total
 # normalize by country and year ??? doesn't seem to get me what I want - possible that you don't WANT to normalize by country and year, because perhaps overall global trade of goods is more important
+# takes some processing time - may be a more efficient way to do this
 
 train_val_norm = ( train.groupby(['location_id','year']).apply(norm_minmax, targets='export_value').to_frame()
 .rename(index=str, columns={'export_value':'export_val_norm'}).reset_index() )
@@ -504,23 +504,22 @@ test = test.fillna(0)
 test.isnull().values.any()
 
 #%%
-## Export data to HDF5 and pickle
+## Export data to HDF5
 
-# export to HDF5
-
+# define the clean files
 clean = ( {'train':train, 'test':test, 'df_country':df_country, 'df4_lookback':df4_lookback, 'df_country_lookback':df_country_lookback,
 'df6_classes':df6_classes, 'df_locations':df_locations} )
 
 for key, value in clean.items():
     print(key)
 
-# always make train the first item in the dict
+# always make train the first item in the dict for organization's sake + necessary when first creating file to name the first key
 directory = os.path.dirname(os.path.abspath('data_clean.h5'))
 directory
 clean_filename = os.path.join(directory,'data/processed/data_clean.h5')
 clean_filename
 
-if os.path.exists(clean_filename):
+if os.path.exists(clean_filename): # error handling for data_clean, which for some reason always shows as open for read only if it already exists (not sure on what's going on here)
     os.remove(clean_filename)
 
 for k, v in clean.items():
@@ -531,12 +530,13 @@ for k, v in clean.items():
             v.to_hdf('data/processed/data_clean.h5', key=k)
     except NotImplementedError:
         if k == 'train':
-            v.to_hdf('data/processed/data_clean.h5', key=k, format='t')
+            v.to_hdf('data/processed/data_clean.h5', key=k, format='t') # categorical variables need to be placed in table format
         else:
             v.to_hdf('data/processed/data_clean.h5', key=k, format='t')
 
 #%%
-
+# save pre-processing data (intermediate steps)
+# define the prep files
 prep = ( {'df6':df6, 'df6_groupsum':df6_groupsum, 'df6_95_04':df6_95_04, 'df6_05_14':df6_05_14, 'df6_95_04_sum1':df6_95_04_sum1,
 'df6_95_04_sum2':df6_95_04_sum2, 'df6_95_04_trend':df6_95_04_trend, 'df6_05_14_sum1':df6_05_14_sum1, 'df6_05_14_sum2':df6_05_14_sum2,
 'df6_05_14_trend':df6_05_14_trend, 'train_pct_norm':train_pct_norm, 'train_pct_std':train_pct_std, 'train_trend_std':train_trend_std,
@@ -545,12 +545,12 @@ prep = ( {'df6':df6, 'df6_groupsum':df6_groupsum, 'df6_95_04':df6_95_04, 'df6_05
 for k, v in prep.items():
     try:
         if k == 'df6':
-            v.to_hdf('data/preprocessed/data_prep.h5', key=k, mode='w')
+            v.to_hdf('data/preprocessed/data_prep.h5', key=k, mode='w') # the first file has to be written to be created
         else:
             v.to_hdf('data/preprocessed/data_prep.h5', key=k)
     except NotImplementedError:
         if k == 'train':
-            v.to_hdf('data/preprocessed/data_prep.h5', key=k, mode='w', format='t')
+            v.to_hdf('data/preprocessed/data_prep.h5', key=k, mode='w', format='t') # categorical variables need to be placed in table format
         else:
             v.to_hdf('data/preprocessed/data_prep.h5', key=k, format='t')
 

@@ -22,8 +22,6 @@ from keras.callbacks import ModelCheckpoint
 from keras.layers import advanced_activations, Concatenate, Dense, Dot, Dropout, Embedding, Flatten, Input, LSTM, Reshape
 from keras.models import load_model, Model, Sequential
 from keras.utils import np_utils
-from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
 from sklearn.model_selection import train_test_split
 
 from source.data_load import *
@@ -116,8 +114,8 @@ else:
   plt.ylabel('Training Error')
 
 #%%
-# Evaluate model_dot on 2005
-model_dot.evaluate([test_2005.location_id, test_2005.product_id], test_2005.export_pct_std)
+# Evaluate model_dot
+model_dot.evaluate([test.location_id, test.product_id], test.export_val_std_all)
 
 #%%
 # Make select predictions using model_dot - probably need to un-normalize from minmax

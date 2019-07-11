@@ -133,7 +133,7 @@ history_filename
 #%%
 # Load the model
 model_nn_full = load_model(model_filename)
-model_nn_full
+model_nn_full.summary()
 
 # Load the history
 history_nn_full = pickle.load(open(history_filename, 'rb'))

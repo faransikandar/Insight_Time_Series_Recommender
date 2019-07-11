@@ -22,8 +22,7 @@ from keras.callbacks import ModelCheckpoint
 from keras.layers import advanced_activations, Concatenate, Dense, Dot, Dropout, Embedding, Flatten, Input, LSTM, Reshape
 from keras.models import load_model, Model, Sequential
 from keras.utils import np_utils
-from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
+
 from sklearn.model_selection import train_test_split
 
 from source.data_load import *
@@ -113,6 +112,7 @@ trend_rank_input = Input(shape=[1], name='Trend-Rank-Input')
 trend_class_input = Input(shape=[1], name='Trend-Class-Input')
 
 # Concatenate categorical features
+dot_cat = Dot(name='Dot_Product', axes=1)([product_vec, country_vec])
 conc_cat = Concatenate()([product_vec, country_vec])
 
 # Add fully-connected layers
@@ -121,7 +121,6 @@ fc2 = Dense(128, activation='relu', kernel_initializer='glorot_uniform', kernel_
 fc3 = Concatenate()([fc2, trend_class_input, trend_rank_input])
 fc4 = Dropout(0.3)(fc3)
 fc5 = Dense(32, activation='relu', kernel_initializer='glorot_uniform', kernel_constraint=maxnorm(3))(fc4)
-#fc4 = Dropout(0.5)(fc3)
 out = Dense(1)(fc5)
 
 '''
@@ -148,7 +147,7 @@ model_nn = Model([country_input, product_input, trend_class_input, trend_rank_in
 sgd = optimizers.SGD(lr=0.01, momentum=0.0, decay=0.0, nesterov=False)
 nadam = optimizers.Nadam(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=None, schedule_decay=0.004)
 
-adam = optimizers.Adam(lr=0.01, beta_1=0.9, beta_2=0.999, epsilon=None, decay=2e-4, amsgrad=False, clipnorm=1) # clipvalue = 0.5 or 0.25 for exploding gradients
+adam = optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=2e-4, amsgrad=False, clipnorm=1) # clipvalue = 0.5 or 0.25 for exploding gradients
 
 model_nn.compile(optimizer=adam, loss='mean_squared_error', metrics=['logcosh', 'mean_absolute_error', 'mean_squared_error','cosine_proximity'])
 model_nn.summary()
@@ -192,7 +191,7 @@ plt.xlabel('Number of Epochs')
 plt.ylabel('Training Error')
 
 #%%
-# Evaluate model_nn on 2008 - can set = and add callbacks in order to get history?
+# Evaluate model_nn
 print(model_nn.metrics_names)
 model_nn.evaluate([test.location_id, test.product_id, test.export_trend_pct_rank], test.export_val_std_all)
 
