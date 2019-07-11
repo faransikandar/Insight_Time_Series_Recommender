@@ -123,11 +123,11 @@ train_forecast
 # Define the model filepath
 os.getcwd()
 
-directory = os.path.dirname(os.path.abspath('model_nn-05-0.9696.hdf5'))
+directory = os.path.dirname(os.path.abspath('model_nn_trend_class-05-0.6952.hdf5'))
 directory
-model_filename = os.path.join(directory,'models/model_nn-05-0.9696.hdf5')
+model_filename = os.path.join(directory,'models/model_nn_trend_class-05-0.6952.hdf5')
 model_filename
-history_filename = os.path.join(directory,'models/history_nn')
+history_filename = os.path.join(directory,'models/history_nn_trend_class')
 history_filename
 
 #%%
@@ -148,7 +148,7 @@ plt.ylabel('Training Error')
 #%%
 # Evaluate model - can set = and add callbacks in order to get history?
 print(model_nn.metrics_names)
-model_nn.evaluate([test.location_id, test.product_id, train_forecast.export_trend_class, train_forecast.export_trend_pct_rank], test.export_val_std_all) # takes 2.5 min?? on CPU test loss of 0.75 GOOD!
+model_nn.evaluate([test.location_id, test.product_id, train_forecast.export_trend_class], test.export_val_std_all) # takes 2.5 min?? on CPU test loss of 0.75 GOOD!
 
 #%%
 # Define df_locations df
@@ -159,7 +159,7 @@ df6_classes
 
 #%%
 # Show standardized prediction values - all countries, products, years
-predictions_raw = model_nn.predict([test.location_id, test.product_id, train_forecast.export_trend_class, train_forecast.export_trend_pct_rank]) #year, trend for full model
+predictions_raw = model_nn.predict([test.location_id, test.product_id, train_forecast.export_trend_class]) #year, trend for full model
 predictions_raw
 
 #%%
