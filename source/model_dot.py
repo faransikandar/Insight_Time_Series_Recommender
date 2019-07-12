@@ -17,6 +17,7 @@ from sklearn.manifold import TSNE
 import seaborn as sns
 from collections import Counter, defaultdict, OrderedDict
 from itertools import chain
+import tensorflow as tf
 from keras import optimizers, regularizers
 from keras.callbacks import ModelCheckpoint
 from keras.layers import advanced_activations, Concatenate, Dense, Dot, Dropout, Embedding, Flatten, Input, LSTM, Reshape
@@ -103,7 +104,7 @@ model_dot.summary()
 if os.path.exists('model.h5'):
   model_dot = load_model('regression_model_dot.h5')
 else:
-  history_dot = model_dot.fit([train.location_id, train.product_id], train.export_pct_std, batch_size=128, epochs=20, verbose=1, callbacks=callbacks_list)
+  history_dot = model_dot.fit([train.location_id, train.product_id], train.export_val_std_all, batch_size=128, epochs=20, verbose=1, callbacks=callbacks_list)
   #model_dot.save('regression_model_dot.h5')
 
   with open('/content/gdrive/My Drive/Colab Notebooks/Insight_Net_Align/models/history_dot_pct_std', 'wb') as file_pi:
