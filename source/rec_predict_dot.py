@@ -25,6 +25,8 @@ dict_data
 
 data_clean = dict_data['data_clean']
 data_clean.keys()
+hdf = dict_data['hdf']
+hdf.keys()
 test = data_clean.get('/test')
 train = data_clean.get('train')
 
@@ -152,9 +154,16 @@ model_dot.evaluate([test.location_id, test.product_id], test.export_val_std_all)
 
 #%%
 # Define df_locations df
-df_locations = data_clean.get('/df_locations')
+df_locations = hdf.get('/classifications/location')
 df_locations
-df6_classes = data_clean.get('/df6_classes')
+
+# Define df_classes
+df_classes = hdf.get('/classifications/hs_product')
+df2_classes = df_classes[df_classes['level'] == '2digit']
+df2_classes
+df4_classes = df_classes[df_classes['level'] == '4digit']
+df4_classes
+df6_classes = df_classes[df_classes['level'] == '6digit']
 df6_classes
 
 #%%
