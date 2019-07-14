@@ -27,12 +27,26 @@ from keras.utils import np_utils
 
 from sklearn.model_selection import train_test_split
 
-from source.data_load import *
+from source.data_loader import *
 
 #%%
-def define_model(dict_data_key_clean, model_name, history_name, model_load=True, gdrive=False):
-
+def define_model(dict_data_key_clean, model_name, history_name, model_load, gdrive=False):
+    '''
+    Inputs:
+    dict_data_key_clean:    'data_full_clean' (if data_cleaner.py was called on data_full, i.e. 6digit product categories)
+                            'data_sample_clean' (if data_cleaner.py was called on data_sample, i.e. 2-country data sampled from 2digit product categories)
+                            'data_2digit_clean' (if data_cleaner.py was called on data_2digit, i.e. 2digit product categories)
+                            dict_data_key_clean includes 'train' and 'test' dfs (calculated based on what is called in 'raw' in data_cleaner.py)
+    model_name: name of model file (including file extension only if loading model from disk, i.e. model_load=True)
+    history_name: name of history file (not including file extension, regardless of model_load boolean)
+    gdrive: boolean, whether or not running file in google colab, default is False
+    ________________________
+    Outputs:
+    None: trains model, evaluates, and saves files to model and history locations specified in call
+    ________________________
+    '''
     # Load the data
+    print("##################################################")
     print('Defining the data...')
 
     dict_data = data_load()
@@ -44,19 +58,21 @@ def define_model(dict_data_key_clean, model_name, history_name, model_load=True,
     train = data_clean.get('/train')
 
     # Define model inputs
-    n_countries = len(train['location_id'].unique())
+    # Max necessary for model inputs, but not the actual number of units
+    n_countries = train['location_id'].max() # len(train['location_id'].unique())
     n_products = train['product_id'].max()
     n_years = train['year'].max()
-    n_years = 2017
     n_trends = len(train['export_trend_norm'].unique()) #int(round(train['export_trend_std'].max()))
     n_latent_factors = 10
 
-    print(n_countries)
-    print(n_products)
-    print(n_years)
-    print(n_trends)
+    print('Max Number of Countries: ', n_countries)
+    print('Max Number of Products: ', n_products)
+    print('Max Number of Years: ', n_years)
+    print('Max Number of Trends: ', n_trends)
+    print('Number of Latent Factors: ', n_latent_factors)
 
     # Create embeddings
+    print("##################################################")
     print('Creating embeddings...')
 
     # Creating product embedding path
@@ -92,6 +108,7 @@ def define_model(dict_data_key_clean, model_name, history_name, model_load=True,
 
     # Inspired from: http://digital-thinking.de/deep-learning-combining-numerical-and-text-features-in-deep-neural-networks/
 
+    print("##################################################")
     print('Definining inputs, layers, and hyperparameters...')
 
     trend_rank_input = Input(shape=[1], name='Trend-Rank-Input')
@@ -128,6 +145,7 @@ def define_model(dict_data_key_clean, model_name, history_name, model_load=True,
         callbacks_list = [checkpoint, history, reduce_lr]
 
     elif model_load == True:
+        print("##################################################")
         print('Loading the model...')
 
         if gdrive == True:
@@ -150,6 +168,7 @@ def define_model(dict_data_key_clean, model_name, history_name, model_load=True,
     adam = optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=2e-4, amsgrad=False, clipnorm=1) # clipvalue = 0.5 or 0.25 for exploding gradients
 
     # Compile the model
+    print("##################################################")
     print('Compiling the model...')
 
     model_nn.compile(optimizer=adam, loss='mean_squared_error', metrics=['logcosh', 'mean_absolute_error', 'mean_squared_error','cosine_proximity'])
@@ -166,6 +185,7 @@ def define_model(dict_data_key_clean, model_name, history_name, model_load=True,
             pickle.dump(history_nn, file_pi)
 
     # Plot the history
+    print("##################################################")
     print('Plotting training history...')
 
     plt.plot(history_nn.history['loss'])
@@ -173,6 +193,7 @@ def define_model(dict_data_key_clean, model_name, history_name, model_load=True,
     plt.ylabel('Training Error')
 
     # Evaluate model_nn
+    print("##################################################")
     print('Evaluating the model...')
     print(model_nn.metrics_names)
 
@@ -180,10 +201,19 @@ def define_model(dict_data_key_clean, model_name, history_name, model_load=True,
     print(model_eval)
 
 def main():
-    dict_data_key_clean = 'data_example_clean'
-    model_name = 'model_nn_full_example-10-0.2273.hdf5'
-    history_name = 'history_nn_full_example'
-    define_model(dict_data_key_clean, model_name, history_name, model_load=True)
+    dict_data_key_clean = 'data_2digit_clean'
+    model_name = 'model_nn_full_2digit'
+    history_name = 'history_nn_full_2digit'
+
+    print("##################################################")
+    print('The model is being trained for: ', dict_data_key_clean)
+    print('The model name is: ', model_name)
+    print('The history name is: ', history_name)
+    define_model(dict_data_key_clean, model_name, history_name, model_load=False)
+    print("##################################################")
+    print('Success!')
+    print("##################################################")
+
 
 if __name__ == "__main__":
     main()
