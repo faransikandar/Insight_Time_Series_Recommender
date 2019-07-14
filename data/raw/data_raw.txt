@@ -1,0 +1,2 @@
+# save data_17_0.h5 in this folder, in order to train the full model on your own
+# download from http://atlas.cid.harvard.edu/downloads
