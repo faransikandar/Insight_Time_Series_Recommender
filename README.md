@@ -1,3 +1,19 @@
+# Insight Time Series Recommender
+
+Machine learning to recommend export growth areas across countries, and products, and time.
+
+## Project Overview
+
+How do investors and central governments determine where to invest in an economy? While time series forecasting is one potential way of predicting growth in a given sector over time, there are not good methods for comparing multiple sectors across multiple countries over time. More, these forecasts are a reasonable measure of the state of the world "as it is" changing, but are not necessarily economically sound recommendations of how a country "should" change - i.e. based on what is easiest for them, their relative strengths, and similarities to other economies.
+
+In order to solve this problem, I take a recommendations-oriented approach to forecasting rather than a purely predictions-oriented approach.
+
+This project combines collaborative filtering recommender systems and time series analysis in order to provide recommendations for export growth across 250 countries and territories, over 5,000 product areas, and 20 years. The model is trained on data from 1995-2004 and makes recommendations on data from 2005-2014.
+
+The final product includes a command line interface - the user can input a country/territory and the model will recommend the top 50 product/service areas which that country/territory should export, based on location-location similarity.
+
+Slides describing this project and be found here: http://bit.ly/time-rec-demo
+
 ## Motivation for this project format:
 - **Insight_Project_Framework** : Put all source code for production within structured directory
 - **tests** : Put all source code for testing in an easy to find location
@@ -120,4 +136,34 @@ pip install -r requiremnts
 
 # Step 1
 # Step 2
+```
+
+## Project Structure
+```
+├── LICENSE
+├── README.md             <- The top-level README for developers using this project.
+├── rec_output.png        <- Sample output
+│
+├── build
+│   ├── environment.sh    <- COCO Data Set for DeepLab testing.
+│   └── requirements.txt  <- The requirements file for reproducing the analysis environment
+│
+├── data
+│   ├── example           <- data_example.h5 dataset for running fast examples locally
+│   └── preprocessed      <- data_prep_{}.h5 files including intermediate calculations
+│   └── processed         <- data_clean_{}.h5 files used in final inference
+│   └── raw               <- full, raw data used for training full model
+│
+├── models                <- Various pre-trained models
+│
+├── source                        <- Source code, various python executable files
+│   ├── data_cleaner.py           <- Cleans raw data
+│   └── data_example_creation.py  <- Create example data for fast runs of model testing
+│   └── data_loader.py            <- Function for loading data in different modules
+│   └── model_builder.py          <- Build (train or load) DL models
+│   └── rec_predicter.py          <- Make predictions/recommendations
+│
+├── requirements.txt      <- The requirements file for reproducing the analysis environment
+│
+└── README-ECON.md        <- Detailed insights into the economic theory behind the model
 ```

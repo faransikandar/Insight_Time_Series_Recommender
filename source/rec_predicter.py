@@ -19,7 +19,8 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error
 from source.data_loader import *
 
 #%%
-def make_predictions(dict_data_key_raw, dict_data_key_clean, model_name, full_features, history_name, predictions_key, n_predictions, country_choice):
+def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_features, history_name,
+    predictions_key, n_predictions, country_choice ):
     '''
     Inputs:
     dict_data_key_raw: 'data_full' or 'data_example' - include raw data files for 6, digit, 2 digit, or sample trade data, product classes, locations
@@ -396,7 +397,8 @@ def main():
     print("##################################################")
     country_choice = input('What country/territory do you want to recommend exports for? ')
 
-    make_predictions(dict_data_key_raw, dict_data_key_clean, model_name, full_features, history_name, predictions_key, n_predictions, country_choice)
+    make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_features, history_name,
+        predictions_key, n_predictions, country_choice )
 
     print("##################################################")
     print('Success!')
