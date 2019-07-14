@@ -74,13 +74,11 @@ ATLAS of Economic Complexity: http://atlas.cid.harvard.edu/
 
 ## Network Design
 
-![Inspiration from NLP Network Combining Embedding + Continuous Features]
-(http://digital-thinking.de/wp-content/uploads/2018/07/combine.png)
+![Inspiration from NLP Network Combining Embedding + Continuous Features](http://digital-thinking.de/wp-content/uploads/2018/07/combine.png)
 
 ## Collaborative Filtering
 
-![Example of Recommender System Algorithms]
-(https://cdn-images-1.medium.com/max/1200/1*mz9tzP1LjPBhmiWXeHyQkQ.png)
+![Example of Recommender System Algorithms](https://cdn-images-1.medium.com/max/1200/1*mz9tzP1LjPBhmiWXeHyQkQ.png)
 
 ## Motivation for this project format:
 - **Insight_Project_Framework** : Put all source code for production within structured directory
