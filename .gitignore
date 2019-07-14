@@ -1,5 +1,7 @@
 # ignore this entire directory - the files are too large for git!
+configs
 data/raw_unused
+tests
 
 # ignore any files w/ this extension
 *.DS_Store
@@ -10,3 +12,5 @@ data/preprocessed/data_full_prep.h5
 data/processed/data_full_clean.h5
 data/processed/data_predictions.h5
 data/raw/data_17_0.h5
+source/model_1Ldot.py
+source/model_3L.py
