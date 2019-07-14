@@ -486,11 +486,11 @@ def main():
         file_out_clean = 'processed/data_full_clean.h5'
         file_out_prep = 'preprocessed/data_full_prep.h5'
     elif dict_data_key_raw == 'data_sample':
-        file_out_clean = 'example/data_sample_clean.h5'
-        file_out_prep = 'example/data_sample_prep.h5'
+        file_out_clean = 'processed/data_sample_clean.h5'
+        file_out_prep = 'preprocessed/data_sample_prep.h5'
     elif dict_data_key_raw == 'data_2digit':
-        file_out_clean = 'example/data_2digit_clean.h5'
-        file_out_prep = 'example/data_2digit_prep.h5'
+        file_out_clean = 'processed/data_2digit_clean.h5'
+        file_out_prep = 'preprocessed/data_2digit_prep.h5'
 
     ## Export data to HDF5
     # always make train the first item in the dict for organization's sake + necessary when first creating file to name the first key
