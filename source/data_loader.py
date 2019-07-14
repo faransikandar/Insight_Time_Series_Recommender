@@ -33,9 +33,9 @@ def load_paths(gdrive = False, ide = False):
         data_full_filename = os.path.join(directory,'../data/raw/',full_filename)
         data_full_clean_filename = os.path.join(directory,'../data/processed/',full_clean_filename)
         data_sample_filename = os.path.join(directory,'../data/example/',sample_filename)
-        data_sample_clean_filename = os.path.join(directory,'../data/example/',sample_clean_filename)
+        data_sample_clean_filename = os.path.join(directory,'../data/processed/',sample_clean_filename)
         data_2digit_filename = os.path.join(directory,'../data/example/',_2digit_filename)
-        data_2digit_clean_filename = os.path.join(directory,'../data/example/',_2digit_clean_filename)
+        data_2digit_clean_filename = os.path.join(directory,'../data/processed/',_2digit_clean_filename)
     except NameError:
         # for gdrive
         if gdrive == True:
@@ -43,9 +43,9 @@ def load_paths(gdrive = False, ide = False):
             data_full_filename = '/content/gdrive/My Drive/Colab Notebooks/Insight_Net_Align/data/raw/'+full_filename
             data_full_clean_filename = '/content/gdrive/My Drive/Colab Notebooks/Insight_Net_Align/data/processed/'+full_clean_filename
             data_sample_filename = 'content/gdrive/My Drive/Colab Notebooks/Insight_Net_Align/data/example/'+sample_filename
-            data_sample_clean_filename = 'content/gdrive/My Drive/Colab Notebooks/Insight_Net_Align/data/example/'+sample_clean_filename
+            data_sample_clean_filename = 'content/gdrive/My Drive/Colab Notebooks/Insight_Net_Align/data/processed/'+sample_clean_filename
             data_2digit_filename = 'content/gdrive/My Drive/Colab Notebooks/Insight_Net_Align/data/example/'+_2digit_filename
-            data_2digit_clean_filename = 'content/gdrive/My Drive/Colab Notebooks/Insight_Net_Align/data/example/'+_2digit_clean_filename
+            data_2digit_clean_filename = 'content/gdrive/My Drive/Colab Notebooks/Insight_Net_Align/data/processed/'+_2digit_clean_filename
         # for local (e.g. IDE)
         if ide == True:
             directory = os.path.dirname(os.path.abspath(full_filename))
@@ -56,11 +56,11 @@ def load_paths(gdrive = False, ide = False):
             data_full_clean_filename
             data_sample_filename = os.path.join(directory,'data/example/',sample_filename)
             data_sample_filename
-            data_sample_clean_filename = os.path.join(directory,'data/example/',sample_clean_filename)
+            data_sample_clean_filename = os.path.join(directory,'data/processed/',sample_clean_filename)
             data_sample_clean_filename
             data_2digit_filename = os.path.join(directory,'data/example/',_2digit_filename)
             data_2digit_filename
-            data_2digit_clean_filename = os.path.join(directory,'data/example/',_2digit_clean_filename)
+            data_2digit_clean_filename = os.path.join(directory,'data/processed/',_2digit_clean_filename)
             data_2digit_clean_filename
     dict_paths_def = ( {'cwd':cwd, 'directory':directory, 'data_full_filename':data_full_filename, 'data_full_clean_filename':data_full_clean_filename,
         'data_sample_filename':data_sample_filename, 'data_sample_clean_filename':data_sample_clean_filename,
