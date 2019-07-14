@@ -1,5 +1,12 @@
-# ignore this entire directory
-data/
+# ignore this entire directory - the files are too large for git!
+data/raw_unused
 
 # ignore any files w/ this extension
 *.DS_Store
+
+# ignore these specific files - they're too large for git!
+data/example/data_2digit_prep.h5
+data/preprocessed/data_full_prep.h5
+data/processed/data_full_clean.h5
+data/processed/data_predictions.h5
+data/raw/data_17_0.h5

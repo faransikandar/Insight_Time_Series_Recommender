@@ -11,6 +11,10 @@ import pickle
 
 from source.data_load import *
 
+# tmp = pd.HDFStore('data/processed/data_predictions.h5') # mode = 'r' mode = 'a'?
+# tmp.keys()
+# tmp.close()
+
 #%%
 data_load()
 
@@ -25,7 +29,7 @@ cols = ['location_id', 'product_id', 'year']
 for i in cols:
     df2[i] = df2[i].astype(int)
 
-df_small = df2[df2['location_id'].isin(range(0,2))]
+df2_sample = df2[df2['location_id'].isin(range(0,2))]
 
 df_classes = hdf.get('/classifications/hs_product')
 df2_classes = df_classes[df_classes['level'] == '2digit']
@@ -35,7 +39,7 @@ df_locations.head()
 
 #%%
 # naming example keys as general values and not specific (eg df2) so can be compatible with other fxns in main code
-example = ( {'df2':df2, 'df_small':df_small,'df_classes':df2_classes, 'df_locations':df_locations} )
+example = ( {'df2':df2, 'df2_sample':df2_sample,'df_classes':df2_classes, 'df_locations':df_locations} )
 
 os.getcwd()
 
@@ -44,12 +48,12 @@ if os.path.exists('data/example/data_example.h5'): # error handling for data_cle
 
 for k, v in example.items():
     try:
-        if k == 'df':
+        if k == 'df2':
             v.to_hdf('data/example/data_example.h5', key=k, mode='w') # the first file has to be written to be created
         else:
             v.to_hdf('data/example/data_example.h5', key=k)
     except NotImplementedError:
-        if k == 'train':
+        if k == 'df2':
             v.to_hdf('data/example/data_example.h5', key=k, mode='w', format='t') # categorical variables need to be placed in table format
         else:
             v.to_hdf('data/example/data_example.h5', key=k, format='t')
