@@ -52,9 +52,10 @@ Note: For ease, scripts are preceded by a `source` prefix, denoting the director
 
 Clean Data, Train, and Make Recommendations in one pipeline - using 2-digit product/service area specificity (the full model is trained on 6-digit specificity). This will take ~5 min.
 
-**Note that you will be prompted for a user input for the country/territory name.**
+**NOTE ON USER INPUT:** You will be prompted for a user input for the country/territory name. Spelling/capitalization matters. Also please note that some of the broader regions (e.g. Asia) do not have recommendation data available, although they appear in the options list.
 
-Spelling/capitalization matters. Also please note that some of the broader regions (e.g. Asia) do not have recommendation data available, although they appear in the options list.
+**NOTE ON DISPLAY OF OUTPUTS:*** The output table is a rather wide data table, so it's best to use a full screen view in your terminal window.
+
 ```
 python -m source.time_series_rec_example
 ```
@@ -82,7 +83,9 @@ Collaborative filtering works well for static time slices. But how might recomme
 
 ### Positive Results - Making Recommendations that  Accurately Predict Growth
 
-We get good results. For example, we are able to make recommendations for Ireland that Information Communication Technologies (ICT), Transport, and Financial Services would be its highest growth export sectors. Indeed, *even though its economy was predominantly machinery and chemicals-focused in 1995*, it shifted largely to services including ICT, Transport, and Financial by 2014.
+We get good results! We calculate a Cosine Similarity of 0.854 between the predicted rank of export change percentage and actual rank of export change percentage. This means that we are rather accurately able to predict what the export change percentage (and its rank amongst the total) for a given product/service area will be.
+
+As a more specific example, we are able to make recommendations for Ireland that Information Communication Technologies (ICT), Transport, and Financial Services would be its highest growth export sectors. Indeed, *even though its economy was predominantly machinery and chemicals-focused in 1995*, it shifted largely to services including ICT, Transport, and Financial by 2014.
 
 **To be clear, these product/service areas were not part of the training data, nor were they the highest growth areas in Ireland during the training period - yet we still predicted (i.e. recommended) them to be the highest growth areas!**
 
