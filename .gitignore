@@ -8,6 +8,8 @@ tests/
 
 # ignore these specific files - they're too large for git!
 build/environment.sh
+build/requirements_conda_base.txt
+build/requirements_conda_base2.txt
 data/preprocessed/data_2digit_prep.h5
 data/preprocessed/data_full_prep.h5
 data/processed/data_full_clean.h5
