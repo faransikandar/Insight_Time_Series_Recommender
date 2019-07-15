@@ -49,12 +49,29 @@ pip install -r build/requirements_pip.txt
 
 ## Run an Example Script - Clean Data, Train, and Make Recommendations
 
-4. Clean Data, Train, and Make Recommendations in one pipeline - using 2-digit product/service area specificity (the full model is trained on 6-digit specificity). This will take ~5 min.
+Note: For ease, scripts are preceded by a `source` prefix, denoting the directory they're housed in.
+
+Clean Data, Train, and Make Recommendations in one pipeline - using 2-digit product/service area specificity (the full model is trained on 6-digit specificity). This will take ~5 min.
+
+**Note that you will be prompted for a user input for the country/territory name.**
+
+Spelling/capitalization matters. Also please note that some of the broader regions (e.g. Asia) do not have recommendation data available, although they appear in the options list.
 ```
 python -m source.time_series_rec_example
 ```
 
-**Note that you will be prompted for a user input for the country/territory name.*** Spelling/capitalization matters. Also please note that some of the broader regions (e.g. Asia) do not have recommendation data available, although they appear in the options list.
+## Data Sources
+
+This project was developed using data from the ATLAS of Economic Complexity: http://atlas.cid.harvard.edu/
+
+If you'd like to be able to make recommendations on the full model, download `data_17_0.h5` from the downloads sections of the ATLAS website and place the file in the subdirectory `data/raw`. In the `main()` section of each of the main processing scripts (`data_cleaner.py`, `model_builder.py`, and `rec_predicter.py`), set the following variables:
+- `dict_data_key_raw = 'data_full'`
+- `dict_data_key_clean = 'data_full_clean'`
+- `model_name = 'model_5L_full-04-0.8404.hdf5'` (set name to your liking if you'd like to train from scratch)
+- `model_history = 'model_5L_full'` (set name to your liking if you'd like to train from scratch)
+- `model_load = True` (set to `False` if training from scratch - you will need a GPU)
+
+Leave the other variables as they are.
 
 ## Results
 
@@ -62,7 +79,7 @@ python -m source.time_series_rec_example
 
 Collaborative filtering works well for static time slices. But how might recommendations change over time? We want to be able to account for changes in trends over time (note the arrows signifying an increase in England's trade in technology from 1995 to 2005).
 
-![Collab Filtering Over Time](images/Insight_Collab_Filtering_Over_Time.png)
+![Collaborative Filtering Over Time](images/Insight_Collab_Filtering_Over_Time.png)
 
 ### Positive Results - Making Recommendations that  Accurately Predict Growth
 
@@ -70,7 +87,11 @@ We get good results. For example, we are able to make recommendations for Irelan
 
 **To be clear, these product/service areas were not part of the training data, nor were they the highest growth areas in Ireland during the training period - yet we still predicted (i.e. recommended) them to be the highest growth areas!**
 
-![Insight Recs Ireland](images/Insight_Recs_Ireland.png)
+![Recommendations Ireland](images/Insight_Recs_Ireland.png)
+
+## Acknowledgements
+
+This project was developed at the Insight Artificial Intelligence Fellowship. I am grateful for the support and guidance the Insight community provided, as well as to Ricardo Hausmann and Cesar Hidalgo for providing the foundational research upon which this project could be built.
 
 ## Project Structure
 ```
