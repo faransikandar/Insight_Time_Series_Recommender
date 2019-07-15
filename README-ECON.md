@@ -61,10 +61,6 @@ The model is a proof of concept and can be further improved through some of the 
 
 4) Individual prediction of specific product/service areas on a time-series or LSTM model
 
-## Data Sources
-
-ATLAS of Economic Complexity: http://atlas.cid.harvard.edu/
-
 ## Network Architecture
 
 The architecture for this neural network was inspired from NLP networks which combine embeddings with continuous features, as seen here: http://digital-thinking.de/wp-content/uploads/2018/07/combine.png
