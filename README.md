@@ -71,16 +71,13 @@ Collaborative filtering works well for static time slices. But how might recomme
 
 ![Collab Filtering Over Time](Insight_Collab_Filtering_Over_Time.png)
 
-We get good results for many countries. For example, we are able to make recommendations for Ireland that Information Communication Technologies (ICT), Transport, and Financial Services would be its highest growth export sectors. Indeed, even though their economy was predominantly machinery and chemicals-focused in 1995, they shifted largely to services including ICT, Transport, and Financial by 2014 (or even sooner).
+### Positive Results - Making Recommendations that  Accurately Predict Growth
 
-![Collab Filtering Over Time](Insight_Collab_Filtering_Over_Time.png)
+We get good results. For example, we are able to make recommendations for Ireland that Information Communication Technologies (ICT), Transport, and Financial Services would be its highest growth export sectors. Indeed, *even though their economy was predominantly machinery and chemicals-focused in 1995*, they shifted largely to services including ICT, Transport, and Financial by 2014 (or even sooner).
 
-![Ireland 1995](Insight_Ireland_1995.png)
+![Insight Recs Ireland](Insight_Recs_Ireland.png)
 
-![Ireland 2014](Insight_Ireland_2014.png)
-
-http://atlas.cid.harvard.edu/
-
+#
 repo_name=Insight_Project_Framework # URL of your new repository
 username=mrubash1 # Username for your personal github account
 git clone https://github.com/$username/$repo_name
