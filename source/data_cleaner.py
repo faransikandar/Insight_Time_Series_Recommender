@@ -1,57 +1,16 @@
-# -*- coding: utf-8 -*-
-"""
-Faran Sikandar
-Insight AI.SV19B
-06/08/2019
-
-Project: Net_Align
-Description: Using Representation Learning to Improve Recommender Systems for Economic Diversification
-
-Data: Atlas of Economic Complexity
-
-Notes:
-- Recommender system code inspired from https://github.com/WillKoehrsen/wikipedia-data-science/blob/master/notebooks/Book%20Recommendation%20System.ipynb
-
-Based off of original Colab file:
-
-rec_sys_simple.ipynb
-
-https://colab.research.google.com/drive/1P64VIbq6-FWVKYo503NT4y-_GgaIilgD
-
-"""
-
-"""# Imports and Setup
-
-"""
-
 #%%
 # import libraries
 import os
 import numpy as np
 import pandas as pd
 
-# import matplotlib.pyplot as plt
-# from keras import optimizers, regularizers
-# from keras.callbacks import ModelCheckpoint
-# from keras.layers import advanced_activations, Concatenate, Dense, Dot, Dropout, Embedding, Flatten, Input, LSTM, Reshape
-# from keras.models import load_model, Model, Sequential
-
-# import sys
-# import time
-# import warnings
-# import re
-# import math
-# import pickle
-# from collections import Counter, defaultdict, OrderedDict
-# from itertools import chain
-# from keras.utils import np_utils
-# from sklearn.model_selection import train_test_split
-# from sklearn.manifold import TSNE
-# import seaborn as sns
-
 from source.data_loader import *
 
 #%%
+# Recommender system code inspired from https://github.com/WillKoehrsen/wikipedia-data-science/blob/master/notebooks/Book%20Recommendation%20System.ipynb
+
+#%%
+# If using Google Colab
 '''
 # check relevant TF, keras, and GPU connections
 
@@ -69,12 +28,9 @@ if device_name != '/device:GPU:0':
 print('Found GPU at: {}'.format(device_name))
 '''
 
-#%%
-"""
-## Setup Google Drive + Get the Data
-"""
-
 '''
+# Setup Google Drive + Get the Data
+
 # mount Google Drive locally
 from google.colab import drive
 drive.mount('/content/gdrive')

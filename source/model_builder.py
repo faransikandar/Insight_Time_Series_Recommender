@@ -1,22 +1,9 @@
 #%%
-# inspired from https://github.com/TannerGilbert/Tutorials/blob/master/Recommendation%20System/Recommendation%20System.ipynb
-
-#%%
 import os
-import sys
-import time
-import warnings
-import math
 import matplotlib.pyplot as plt
-import nltk
 import numpy as np
 import pandas as pd
 import pickle
-from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
-import seaborn as sns
-from collections import Counter, defaultdict, OrderedDict
-from itertools import chain
 import tensorflow as tf
 from keras import optimizers, regularizers
 from keras.callbacks import ModelCheckpoint, History, ReduceLROnPlateau
@@ -25,9 +12,10 @@ from keras.layers import advanced_activations, Concatenate, Dense, Dot, Dropout,
 from keras.models import load_model, Model, Sequential
 from keras.utils import np_utils
 
-from sklearn.model_selection import train_test_split
-
 from source.data_loader import *
+
+#%%
+# code partially inspired from https://github.com/TannerGilbert/Tutorials/blob/master/Recommendation%20System/Recommendation%20System.ipynb
 
 #%%
 def define_model(dict_data_key_clean, model_name, n_layers, full_features, history_name, model_load, gdrive=False):
