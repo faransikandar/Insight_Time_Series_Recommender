@@ -60,13 +60,26 @@ Spelling/capitalization matters. Also please note that some of the broader regio
 python -m source.time_series_rec_example
 ```
 
+## Data Sources
+
+This project was developed using data from the ATLAS of Economic Complexity: http://atlas.cid.harvard.edu/
+
+If you'd like to be able to make recommendations on the full model, download `data_17_0.h5` from the downloads sections of the ATLAS website and place the file in the subdirectory `data/raw`. In the `main()` section of each of the main processing scripts (`data_cleaner.py`, `model_builder.py`, and `rec_predicter.py`), set the following variables:
+- `dict_data_key_raw = 'data_full'`
+- `dict_data_key_clean = 'data_full_clean'`
+- `model_name = 'model_5L_full-04-0.8404.hdf5'` (set name to your liking if you'd like to train from scratch)
+- `model_history = 'model_5L_full'` (set name to your liking if you'd like to train from scratch)
+- `model_load = True` (set to `False` if training from scratch - you will need a GPU)
+
+Leave the other variables as they are.
+
 ## Results
 
 ### Collaborative Filtering Over Time - An Example
 
 Collaborative filtering works well for static time slices. But how might recommendations change over time? We want to be able to account for changes in trends over time (note the arrows signifying an increase in England's trade in technology from 1995 to 2005).
 
-![Collab Filtering Over Time](images/Insight_Collab_Filtering_Over_Time.png)
+![Collaborative Filtering Over Time](images/Insight_Collab_Filtering_Over_Time.png)
 
 ### Positive Results - Making Recommendations that  Accurately Predict Growth
 
@@ -74,121 +87,11 @@ We get good results. For example, we are able to make recommendations for Irelan
 
 **To be clear, these product/service areas were not part of the training data, nor were they the highest growth areas in Ireland during the training period - yet we still predicted (i.e. recommended) them to be the highest growth areas!**
 
-![Insight Recs Ireland](images/Insight_Recs_Ireland.png)
+![Recommendations Ireland](images/Insight_Recs_Ireland.png)
 
-#
-repo_name=Insight_Project_Framework # URL of your new repository
-username=mrubash1 # Username for your personal github account
-git clone https://github.com/$username/$repo_name
-cd $repo_name
-echo "export $repo_name=${PWD}" >> ~/.bash_profile
-echo "export PYTHONPATH=$repo_name/src:${PYTHONPATH}" >> ~/.bash_profile
-source ~/.bash_profile
-```
-Create new development branch and switch onto it
-```
-branch_name=dev-readme_requisites-20180905 # Name of development branch, of the form 'dev-feature_name-date_of_creation'}}
-git checkout -b $branch_name
-```
+## Acknowledgements
 
-## Initial Commit
-Lets start with a blank slate: remove `.git` and re initialize the repo
-```
-cd $repo_name
-rm -rf .git   
-git init   
-git status
-```  
-You'll see a list of file, these are files that git doesn't recognize. At this point, feel free to change the directory names to match your project. i.e. change the parent directory Insight_Project_Framework and the project directory Insight_Project_Framework:
-Now commit these:
-```
-git add .
-git commit -m "Initial commit"
-git push origin $branch_name
-```
-
-## Requisites
-
-- List all packages and software needed to build the environment
-- This could include cloud command line tools (i.e. gsutil), package managers (i.e. conda), etc.
-
-#### Dependencies
-
-- [Streamlit](streamlit.io)
-
-#### Installation
-To install the package above, pleae run:
-```shell
-pip install -r requiremnts
-```
-
-## Build Environment
-- Include instructions of how to launch scripts in the build subfolder
-- Build scripts can include shell scripts or python setup.py files
-- The purpose of these scripts is to build a standalone environment, for running the code in this repository
-- The environment can be for local use, or for use in a cloud environment
-- If using for a cloud environment, commands could include CLI tools from a cloud provider (i.e. gsutil from Google Cloud Platform)
-```
-# Example
-
-# Step 1
-# Step 2
-```
-
-## Configs
-- We recommond using either .yaml or .txt for your config files, not .json
-- **DO NOT STORE CREDENTIALS IN THE CONFIG DIRECTORY!!**
-- If credentials are needed, use environment variables or HashiCorp's [Vault](https://www.vaultproject.io/)
-
-
-## Test
-- Include instructions for how to run all tests after the software is installed
-```
-# Example
-
-# Step 1
-# Step 2
-```
-
-## Run Inference
-- Include instructions on how to run inference
-- i.e. image classification on a single image for a CNN deep learning project
-```
-# Example
-
-# Step 1
-# Step 2
-```
-
-## Build Model
-- Include instructions of how to build the model
-- This can be done either locally or on the cloud
-```
-# Example
-
-# Step 1
-# Step 2
-```
-
-## Serve Model
-- Include instructions of how to set up a REST or RPC endpoint
-- This is for running remote inference via a custom model
-```
-# Example
-
-# Step 1
-# Step 2
-```
-
-## Analysis
-- Include some form of EDA (exploratory data analysis)
-- And/or include benchmarking of the model and results
-```
-# Example
-
-# Step 1
-# Step 2
-```
+This project was developed at the Insight Artificial Intelligence Fellowship. I am grateful for the support and guidance the Insight community provided, as well as to Ricardo Hausmann and Cesar Hidalgo for providing the foundational research upon which this project could be built.
 
 ## Project Structure
 ```

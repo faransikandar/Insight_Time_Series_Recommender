@@ -65,12 +65,8 @@ The model is a proof of concept and can be further improved through some of the 
 
 ATLAS of Economic Complexity: http://atlas.cid.harvard.edu/
 
-## Network Design
+## Network Architecture
 
-![Inspiration from NLP Network Combining Embedding + Continuous Features]
-(http://digital-thinking.de/wp-content/uploads/2018/07/combine.png)
+The architecture for this neural network was inspired from NLP networks which combine embeddings with continuous features, as seen here: http://digital-thinking.de/wp-content/uploads/2018/07/combine.png
 
-## Collaborative Filtering
-
-![Example of Recommender System Algorithms]
-(https://cdn-images-1.medium.com/max/1200/1*mz9tzP1LjPBhmiWXeHyQkQ.png)
+![Time Series Recommender Model Architecture](images/Insight_Model_Architecture.png)
