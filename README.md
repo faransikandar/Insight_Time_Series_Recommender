@@ -16,7 +16,6 @@ Slides describing this project and be found here: http://bit.ly/time-rec-demo
 
 ## Requisites
 
-- Linux or MacOS. Windows may work as well, but I have not tested it.
 - `git`
 - `conda`
   * Install [here](https://docs.conda.io/projects/conda/en/latest/user-guide/install/)
