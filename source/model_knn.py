@@ -19,7 +19,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 #%%
 # LOAD THE DATA
-from source.data_load import *
+from source.data_loader import *
 
 dict_data = data_load()
 dict_data

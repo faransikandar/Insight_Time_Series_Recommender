@@ -4,7 +4,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from source.data_loader import *
+from source.data_loader simport *
 
 #%%
 # Recommender system code inspired from https://github.com/WillKoehrsen/wikipedia-data-science/blob/master/notebooks/Book%20Recommendation%20System.ipynb
