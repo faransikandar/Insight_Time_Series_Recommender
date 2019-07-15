@@ -1,0 +1,17 @@
+# To install these Python dependencies, please type:
+# pip install -r requirements.txt
+
+# data manipulation
+numpy==1.16.2
+pandas==0.24.2
+
+# plotting
+matplotlib==3.0.3
+
+# model building
+keras==2.2.4
+tensorflow==1.13.1
+scikit-surprise==1.0.6
+
+# metrics
+scikit-learn==0.20.3
