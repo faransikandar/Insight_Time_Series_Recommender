@@ -18,7 +18,7 @@ import matplotlib as mpl
 mpl.use('TkAgg')
 import matplotlib.pyplot as plt
 
-from source.data_load import *
+from source.data_loader import *
 
 #%%
 def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_features, history_name,
