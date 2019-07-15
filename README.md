@@ -1,6 +1,6 @@
 # Insight Time Series Recommender
 
-Deep learning to recommend export growth areas across countries, and products, and time.
+Combining deep learning recommender systems and time series analysis to recommend export growth areas across countries, and products, and time.
 
 ## Project Overview
 
