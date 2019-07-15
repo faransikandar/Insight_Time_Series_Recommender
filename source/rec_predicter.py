@@ -14,7 +14,12 @@ from keras.utils import np_utils
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
-from source.data_loader import *
+# acrobatics for matplotlib on Mac OSX
+import matplotlib as mpl
+mpl.use('TkAgg')
+import matplotlib.pyplot as plt
+
+from source.data_load import *
 
 #%%
 def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_features, history_name,

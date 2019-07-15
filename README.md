@@ -41,8 +41,11 @@ conda activate time-series-rec
 3. Install pip within your conda environment and install the project dependencies from `requirements.txt`
 ```
 conda install pip
-pip install -r build.requirements.txt
+pip install numpy==1.16.2
+pip install -r build/requirements.txt
 ```
+* pip should already come with conda, but in case it isn't there
+* scikit-surprise (used for alternative algorithms) forces a manual install of numpy first - I don't have a clear solution for this yet
 
 ## Run an Example Script - Clean Data, Train, and Make Recommendations
 
