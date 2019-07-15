@@ -31,9 +31,7 @@ Slides describing this project and be found here: http://bit.ly/time-rec-demo
   * Install [here](https://docs.conda.io/projects/conda/en/latest/user-guide/install/)
 - `pip`
   * For example, on Ubuntu 18.04 run `sudo apt-get install python3-pip`
-- `python` (Python version 3.6)
-- `virtualenv`
-  * If everything else is installed, you should be able to install `virtualenv` by running `pip3 install virtualenv`
+- `python` (Python version 3.6.8)
 
 ## Setup
 
@@ -45,7 +43,7 @@ git clone https://github.com/faransikandar/Insight_Time_Series_Recommender.git
 2. Set up a conda environment and activate it. (Here, the environemnt is called 'time-series-rec', but you can call it whatever you like.)
 ```
 cd Insight_Time_Series_Recommender
-conda create --name time-series-rec pyton=3.6
+conda create --name time-series-rec python=3.6
 conda activate time-series-rec
 ```
 
@@ -60,6 +58,10 @@ pip install -r build.requirements.txt
 Note: For ease, scripts are preceded by a `source` prefix, denoting the directory they're housed in.
 
 Clean, Train, and Make Recommendations in one pipeline - using 2-digit product/service area specificity (the full model is trained on 6-digit specificity). This will take ~5 min.
+
+**Note that you will be prompted for a user input for the country/territory name.**
+
+Spelling/capitalization matters. Also please note that some of the broader regions (e.g. Asia) do not have recommendation data available, although they appear in the options list.
 ```
 python -m source.time_series_rec_example
 ```
@@ -82,9 +84,7 @@ python -m source.model_builder
 
 ### Make Recommendations
 
-Make recommendations for a country by running the following script. *Note that you will be prompted for a user input for the country/territory name.*
-
-Spelling/capitalization matters. Also please note that some of the broader regions (e.g. Asia) do not have recommendation data available, although they appear in the options list.
+Make recommendations for a country by running the following script.
 ```
 python -m source.rec_predicter
 ```
@@ -101,7 +101,7 @@ Collaborative filtering works well for static time slices. But how might recomme
 
 We get good results. For example, we are able to make recommendations for Ireland that Information Communication Technologies (ICT), Transport, and Financial Services would be its highest growth export sectors. Indeed, *even though its economy was predominantly machinery and chemicals-focused in 1995*, it shifted largely to services including ICT, Transport, and Financial by 2014.
 
-*To be clear, these product/service areas were not part of the training data, nor were they the highest growth areas in Ireland during the training period - yet we still predicted (i.e. recommended) them to be the highest growth areas!*
+**To be clear, these product/service areas were not part of the training data, nor were they the highest growth areas in Ireland during the training period - yet we still predicted (i.e. recommended) them to be the highest growth areas!**
 
 ![Insight Recs Ireland](images/Insight_Recs_Ireland.png)
 
