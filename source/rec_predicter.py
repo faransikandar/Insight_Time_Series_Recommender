@@ -1,4 +1,5 @@
 #%%
+# imports
 import os
 import numpy as np
 import pandas as pd
@@ -21,24 +22,26 @@ import matplotlib.pyplot as plt
 from source.data_loader import *
 
 #%%
-def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_features, history_name,
-    predictions_key, n_predictions, country_choice ):
+def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_features, history_name, predictions_key, n_predictions, country_choice ):
     '''
-    Inputs:
-    dict_data_key_raw: 'data_full' or 'data_example' - include raw data files for 6, digit, 2 digit, or sample trade data, product classes, locations
-    dict_data_key_clean: 'data_full_clean' or 'data_example_clean' - include train and test (calculated based on what is called in 'raw' above)
-    model_name: name of model file, including file extension
-    full_features: boolean, True if all time features used; False if only country + product inputs used
-    history_name: name of history file
-    predictions_key: name of key which you want to save predictions to within data_predictions.h5 file
-    n_predictions: number of top recommendations to display
-    country_choice: the country to make recommendations for, for the 2005-2014 period (based on 1995-2004 training) (fed as user input in main)
+    Inputs:     - dict_data_key_raw - 'data_full' or 'data_example' - include raw data files for 6, digit, 2 digit, or sample trade data, product classes, locations
+                - dict_data_key_clean - 'data_full_clean' or 'data_example_clean' - include train and test (calculated based on what is called in 'raw' above)
+                - model_name - name of model file, including file extension
+                - full_features - boolean, True if all time features used; False if only country + product inputs used
+                - history_name - name of history file
+                - predictions_key - name of key which you want to save predictions to within data_predictions.h5 file
+                - n_predictions - number of top recommendations to display
+                - country_choice - the country to make recommendations for, for the 2005-2014 period (based on 1995-2004 training) (fed as user input in main)
     ________________________
-    Outputs:
-    top_recs_display: display of top n predictions, ranked in descending order based on highest predicted growth rate (pandas dataframe)
+    Outputs:    - top_recs_display - display of top n predictions, ranked in descending order based on highest predicted growth rate (pandas dataframe)
     ________________________
     '''
-    # Load the data
+
+    '''
+    # STEP 1 - DEFINE THE DATA
+    '''
+
+    # load the data
     dict_data = data_load()
     dict_data
 
@@ -65,45 +68,47 @@ def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_f
         df_classes = data_raw.get('/df_classes')
         df_classes
 
+    '''
+    STEP 2 - CALCULATE BASELINES FOR COMPARISON (COMBINING TRAIN AND TEST DATA IN ORDER TO BE ABLE TO CALCULATE EXPORT % CHANGE)
+    '''
+
     print("##################################################")
     print('Calculating baselines for comparison...')
-    # Create baseline df for comparison of pct change
+
+    # create baseline df for comparison of pct change
     baseline = pd.DataFrame()
 
-    # Add in values from test and train to calculate change from zero, once include predictions - if not merging, order matters for first col bc that will define index
-
+    # add in values from test and train to calculate change from zero, once include predictions
+    # if not merging, order matters for first col bc that will define index
     baseline = pd.merge(train['export_period_total'], test['export_period_total'], how='right', left_index=True, right_index=True)
     baseline = baseline.rename(index=str, columns={'export_period_total_x':'export_period_train', 'export_period_total_y':'export_period_test'})
     baseline
 
     baseline.describe()
 
-
-    # Calculate pct change
+    # calculate pct change
     baseline['export_pct_change'] = (baseline['export_period_test']-baseline['export_period_train'])/baseline['export_period_train']
     baseline
 
-
-    # Clean the NaNs in export_pct_change
+    # clean the NaNs in export_pct_change
     mask_nan = baseline['export_pct_change'].isnull() # returns values which ARE NaN
     baseline[mask_nan]
 
     baseline['export_pct_change'] = np.where(mask_nan, baseline['export_period_test'], baseline['export_pct_change'])
     baseline[mask_nan]
-    # baseline.loc[baseline['export_pct_change'].isnull(), baseline['export_pct_change']] = baseline['export_period_test'] # same as
+    # baseline.loc[baseline['export_pct_change'].isnull(), baseline['export_pct_change']] = baseline['export_period_test'] # same as above
 
-    # Clean the NaNs in export_period in export_period_train
+    # clean the NaNs in export_period in export_period_train
     mask_nan = baseline['export_period_train'].isnull()
     baseline[mask_nan]
 
     baseline['export_period_train'] = np.where(mask_nan, 0, baseline['export_period_train'])
     baseline[mask_nan]
 
-    # Check for nulls
+    # check for nulls
     baseline.isnull().values.any()
 
-
-    # Clean the inf/-inf values
+    # clean the inf/-inf values
     mask_pos = baseline['export_pct_change'] != np.inf # returns values which are NOT inf
     mask_neg = baseline['export_pct_change'] != -np.inf # returns values which are NOT -inf
 
@@ -118,8 +123,7 @@ def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_f
 
     baseline
 
-
-    # Create metric to measure NEW goods - can also do -1 (decrease), 0 (no change), 1 (increase), 2 (new good)
+    # create metric to measure NEW goods - can also do -1 (decrease), 0 (no change), 1 (increase), 2 (new good)
     mask_new = (baseline['export_period_test'] > 0) & (baseline['export_period_train'] == 0)
     baseline[mask_new]
 
@@ -138,6 +142,9 @@ def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_f
 
     baseline
 
+    '''
+    # STEP 3 - CREATE TRAIN FORECAST (BEST NOT TO USE TEST TREND VALUES B/C THIS WOULD AMOUNT TO DATA LEAKAGE)
+    '''
 
     # DATA LEAKAGE RISK IF TEST ON TEST TREND VALUES - need to create train.export_trend_pct_rank standin for test
     # (basically like projecting time trends forward, but it's nice, because you can toy with these and generate them however you like to run scenario analysis)
@@ -158,17 +165,18 @@ def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_f
     train_forecast['export_trend_class'] = train_forecast['export_trend_class'].fillna(0)
     train_forecast
 
+    '''
+    # STEP 4 - DEFINE THE MODEL
+    '''
 
-    # Define the model filepath
+    # define the model filepath
     os.getcwd()
-
     directory = os.path.dirname(os.path.abspath('abcdef'))
     directory
     model_filename = os.path.join(directory, 'models', model_name)
     model_filename
     history_filename = os.path.join(directory,'models', history_name)
     history_filename
-
 
     print("##################################################")
     print('Model Summary...')
@@ -180,7 +188,8 @@ def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_f
     history = pickle.load(open(history_filename, 'rb'))
     history
 
-    # Plot the history of the model - some previously run history files just dicts, so need to try two methods
+    # plotting and evaluating not necessary - usually done in model_builder.py - but leaving here in case want to run just this file for tests
+    # plot the history of the model - some previously run history files just dicts, so need to try two methods
     # try:
     #     plt.plot(history['loss'])
     #     plt.xlabel('Number of Epochs')
@@ -190,25 +199,29 @@ def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_f
     #     plt.xlabel('Number of Epochs')
     #     plt.ylabel('Training Error')
 
-    # Evaluate model - can set = and add callbacks in order to get history?
+    # evaluate model - can set = and add callbacks in order to get history?
     # print(model.metrics_names)
     # model.evaluate([test.location_id, test.product_id, train_forecast.export_trend_class, train_forecast.export_trend_pct_rank], test.export_val_std_all) # takes 2.5 min?? on CPU test loss of 0.75 GOOD!
+
+    '''
+    # STEP 5 - MAKE PREDICTIONS (EXPORT VALUE)
+    '''
 
     print("##################################################")
     print('This may take a minute. Making predictions...')
 
-    # Show standardized prediction values - all countries, products, years
+    # show standardized prediction values - all countries, products, years
     if full_features == True:
         predictions_raw = model.predict([test.location_id, test.product_id, train_forecast.export_trend_class, train_forecast.export_trend_pct_rank]) #year, trend for full model
         predictions_raw
     elif full_features == False:
         predictions_raw = model.predict([test.location_id, test.product_id])
 
-    # Hard code std and mean values for loop
+    # hard code std and mean values for loop
     test_export_value_std = test['export_value'].std()
     test_export_value_mean = test['export_value'].mean()
 
-    # De-standardize predictions
+    # de-standardize predictions
     predictions = []
     for i in range(len(predictions_raw)):
         predictions.append((predictions_raw[i] * test_export_value_std) + test_export_value_mean)
@@ -219,21 +232,22 @@ def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_f
     # currently a list of arrays
     predictions[0:5]
 
-
     # concatenate into a single array
     predictions = np.concatenate(predictions, axis=0)
 
-    # Merge predictions into baseline
+    '''
+    # STEP 6 - MERGE PREDICTIONS INTO BASELINE AND MAKE COMPARISONS WITH ACTUAL
+    '''
+
+    # merge predictions into baseline
     baseline['predictions'] = predictions
     baseline
 
-
-    # Calculate pct change
+    # calculate pct change
     baseline['pred_pct_change'] = (baseline['predictions'] - baseline['export_period_train']) / baseline['export_period_train']
     baseline
 
-
-    # Clean the NaNs in export_pct_change
+    # clean the NaNs in export_pct_change
     mask_nan = baseline['pred_pct_change'].isnull() # returns values which ARE NaN
     baseline[mask_nan]
 
@@ -241,11 +255,10 @@ def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_f
     baseline[mask_nan]
     # baseline.loc[baseline['export_pct_change'].isnull(), baseline['export_pct_change']] = baseline['export_period_test'] # same as
 
-    # Check for nulls
+    # check for nulls
     baseline.isnull().values.any()
 
-
-    # Clean the inf/-inf values
+    # clean the inf/-inf values
     mask_pos = baseline['pred_pct_change'] != np.inf # returns values which are NOT inf
     mask_neg = baseline['pred_pct_change'] != -np.inf # returns values which are NOT -inf
 
@@ -258,8 +271,11 @@ def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_f
     baseline['pred_pct_change'] = np.where(~mask_neg, baseline['predictions'], baseline['pred_pct_change'])
     baseline[~mask_neg]
 
+    '''
+    # STEP 7 - CREATE REFERENCE DF WITH COUNTRIES, PRODUCT IDS, PRODUCT NAMES, AND YEARS + MERGE WITH BASEINE
+    '''
 
-    # Merge train and test countries, products, years
+    # merge train and test countries, products, years
     cols = ['location_id', 'product_id', 'year']
     train_ref = train[cols]
     test_ref = test[cols]
@@ -270,7 +286,7 @@ def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_f
     df_reference = pd.merge(train_ref, test_ref, how = 'right', on = ['location_id', 'product_id', 'year'])
     df_reference
 
-    #Merge df_classes into reference table
+    # merge df_classes into reference table
     df_reference = pd.merge(df_reference, df_classes[['index', 'name']], how = 'left', left_on = 'product_id', right_on = 'index')
     df_reference = df_reference.drop(columns='index')
     df_reference
@@ -279,33 +295,36 @@ def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_f
     baseline.index = baseline.index.astype('int64')
     df_reference.index = df_reference.index.astype('int64')
 
-
-    # Merge reference and baseline dfs
+    # merge reference and baseline dfs
     df_predictions = pd.concat([df_reference, baseline], axis = 1)
     df_predictions.shape
     df_predictions
     df_predictions.describe()
 
+    '''
+    # STEP 8 - MAKE RECOMMENDATIONS FOR A SPECIFIC COUNTRY
+    '''
 
-    # Which country to make prediction for
+    # which country to make prediction for
     df_locations[df_locations['name_en'] == country_choice]
 
     location = int(df_locations[df_locations['name_en'] == country_choice]['index'])
     location
 
-    # Return recommendations for a given country
+    # return recommendations for a given country
     df_recs = df_predictions.loc[(df_predictions['location_id'] == location) & (df_predictions['year'] == 2014)]
 
-    # Return the nlargest pct change
+    # return the nlargest pct change
     top_recs = df_recs.nlargest(n_predictions, columns = 'pred_pct_change')
     top_recs
 
-
-    # Calculate rank for actual export change just for this country
+    # calculate rank for actual export change just for this country
     top_recs['export_pct_change_rank_loc'] = top_recs['export_pct_change_rank'].rank(method='min', ascending=False)
 
-    # Return only select columns
+    # return only select columns
     top_recs_display = top_recs[['product_id','name','export_period_test','export_pct_change','export_pct_change_rank_loc','predictions','pred_pct_change']]
+
+    # top_recs.drop(['year','location_id','export_period_train','export_class'], axis=1) # alternative way of doing above
 
     print("##################################################")
     print('These are your top recommendations for country/territory', country_choice, 'for the period 2005-2014!!!')
@@ -313,24 +332,11 @@ def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_f
     print("\n#####################################\n")
     print(top_recs_display)
 
-    # top_recs.drop(['year','location_id','export_period_train','export_class'], axis=1)
+    '''
+    # STEP 9 - VALIDATION METRICS
+    '''
 
-    # # Redefine problem to only include change from 0 - not all countries will have this so better to exclude
-    #
-    # # Check what these products are
-    # df_predictions[df_predictions['export_period_train'] == 0].shape
-    #
-    # # Redefine the recommendation df
-    # df_recs_new = ( df_predictions.loc[(df_predictions['location_id'] == location) & (df_predictions['year'] == 2014) &
-    #                 (df_predictions['export_period_train'] == 0)] )
-    #
-    # df_recs_new
-    # # Make recs for new products
-    # df_recs_new.nlargest(20, columns = 'pred_pct_change', keep = 'first')
-
-    # Validation metrics
-
-    # Calculate cosine_similarity
+    # calculate cosine_similarity
 
     print("##################################################")
     print('Calculating validation metrics for Predicted vs. Actual...')
@@ -345,7 +351,7 @@ def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_f
     # print(mean_absolute_error([df_predictions['export_pct_change']], [df_predictions['pred_pct_change']]))
     # print(mean_squared_error([df_predictions['export_pct_change']], [df_predictions['pred_pct_change']]))
 
-    # Next step is to rank the pct_change actual vs. predict and do MSE validation
+    # next step is to rank the pct_change actual vs. predict and do MSE validation
     df_predictions['export_pct_change_rank'] = df_predictions['export_pct_change'].rank(ascending=False, method='min')
     df_predictions.sort_values(by=['export_pct_change_rank'])
 
@@ -354,35 +360,51 @@ def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_f
     df_predictions.sort_values(by=['pred_pct_change_rank'])
 
 
-    # Cosine for predicted pct change
-    # This is the one that really matters - otherwise cosine similarity is more susceptible to minor perturbations - this best takes into account order
-
+    # cosine for predicted pct change
+    # KEY - this is the one that really matters - otherwise cosine similarity is more susceptible to minor perturbations - this best takes into account order
     print( 'Cosine Similarity for Predicted vs. Actual Export Percent Change Rank: ',
             cosine_similarity([df_predictions['export_pct_change_rank']], [df_predictions['pred_pct_change_rank']]) )
+
     # print(mean_absolute_error([df_predictions['export_pct_change_rank']], [df_predictions['pred_pct_change_rank']]))
     # print(mean_squared_error([df_predictions['export_pct_change_rank']], [df_predictions['pred_pct_change_rank']]))
 
     print("##################################################")
     print('Calculating change metrics for Train vs. Test...')
 
-    # See if there's much difference between train and test export values
+    # see if there's much difference between train and test export values
     print( 'Cosine Similarity for Train vs. Test Export Value: ',
             cosine_similarity([df_predictions['export_period_train']], [df_predictions['export_period_test']]) )
 
     df_predictions['export_period_train_rank'] = df_predictions['export_period_train'].rank(ascending=False, method='min')
     df_predictions['export_period_test_rank'] = df_predictions['export_period_test'].rank(ascending=False, method='min')
 
+    # this tells us how much export value rankings actually changed between train and test periods
     print( 'Cosine Similarity for Train vs. Test Export Value Rank: ',
             cosine_similarity([df_predictions['export_period_train_rank']], [df_predictions['export_period_test_rank']]) )
 
-    # Save df to hdf5
+    # save df to hdf5
     df_predictions.to_hdf('data/processed/data_predictions.h5', key=predictions_key) #default mode='a'
 
     return top_recs_display
 
 #%%
 def main():
+    '''
+    Inputs:     Identical to make_predictions() function in source code above
+                - dict_data_key_raw - 'data_full' or 'data_example' - include raw data files for 6, digit, 2 digit, or sample trade data, product classes, locations
+                - dict_data_key_clean - 'data_full_clean' or 'data_example_clean' - include train and test (calculated based on what is called in 'raw' above)
+                - model_name - name of model file, including file extension
+                - full_features - boolean, True if all time features used; False if only country + product inputs used
+                - history_name - name of history file
+                - predictions_key - name of key which you want to save predictions to within data_predictions.h5 file
+                - n_predictions - number of top recommendations to display
+                - country_choice - the country to make recommendations for, for the 2005-2014 period (based on 1995-2004 training) (fed as user input in main)
+    ________________________
+    Outputs:    - top_recs_display - display of top n predictions, ranked in descending order based on highest predicted growth rate (pandas dataframe)
+    ________________________
+    '''
 
+    # define variables to be called in make_predictions() function
     dict_data_key_raw = 'data_2digit'
     dict_data_key_clean = 'data_2digit_clean'
     model_name = 'model_5L_full_2digit-10-0.3169.hdf5'
@@ -399,13 +421,12 @@ def main():
     print("##################################################")
     country_choice = input('What country/territory do you want to recommend exports for? ')
 
-    make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_features, history_name,
-        predictions_key, n_predictions, country_choice )
+    # make predictions
+    make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_features, history_name, predictions_key, n_predictions, country_choice )
 
     print("##################################################")
     print('Success!')
     print("##################################################")
-
 
 if __name__ == "__main__":
     main()

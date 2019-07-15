@@ -1,4 +1,5 @@
 #%%
+# import libraries
 import os
 import pandas as pd
 
@@ -6,20 +7,19 @@ import pandas as pd
 # load paths
 def load_paths(gdrive = False, ide = False):
     '''
-    Inputs:
-    gdrive: boolean for whether running scripts in google colab or not
-    ide: boolean for wehtehr running scripts in shell or in an ide (where directory paths often default to home directory for project)
+    Inputs:     gdrive - boolean for whether running scripts in google colab or not
+                ide - boolean for wehtehr running scripts in shell or in an ide (where directory paths often default to home directory for project)
 
-    ***Note: sample and 2digit draw from the same initial data_example.h5 raw file, but are processed into separate clean and prep files
+    ***NOTE*** sample and 2digit draw from the same initial data_example.h5 raw file, but are processed into separate clean and prep files
     ________________________
-    Outputs:    Relative paths for directories, hdf_filename
-                Can add other directories and files as needed (e.g. if want to add datasets to train on without overwriting existing data processing)
+    Outputs:    dict_paths_def - dict of relative paths for directories as {directory_name:filepath};
+                can add other directories and files as needed (e.g. if want to add datasets to train on without overwriting existing data processing)
     ________________________
     '''
     cwd = os.getcwd()
     cwd
 
-    # Define the filenames here - SEE NOTE ABOVE IN DOC STRING
+    # define the filenames here - SEE NOTE ABOVE IN DOC STRING
     full_filename = 'data_17_0.h5'
     full_clean_filename = 'data_full_clean.h5'
     sample_filename = 'data_example.h5'
@@ -27,6 +27,7 @@ def load_paths(gdrive = False, ide = False):
     _2digit_filename = 'data_example.h5'
     _2digit_clean_filename = 'data_2digit_clean.h5'
 
+    # for running through shell environment
     try:
         directory = os.path.dirname(os.path.abspath(__file__))
         data_full_filename = os.path.join(directory,'../data/raw/',full_filename)
@@ -61,6 +62,7 @@ def load_paths(gdrive = False, ide = False):
             data_2digit_filename
             data_2digit_clean_filename = os.path.join(directory,'data/processed/',_2digit_clean_filename)
             data_2digit_clean_filename
+    # list the paths for each file - will make calling data easier
     dict_paths_def = ( {'cwd':cwd, 'directory':directory, 'data_full_filename':data_full_filename, 'data_full_clean_filename':data_full_clean_filename,
         'data_sample_filename':data_sample_filename, 'data_sample_clean_filename':data_sample_clean_filename,
         'data_2digit_filename':data_2digit_filename, 'data_2digit_clean_filename':data_2digit_clean_filename} )
@@ -69,8 +71,11 @@ def load_paths(gdrive = False, ide = False):
 #%%
 def data_load():
     '''
-    inputs: none
-    output: dictionary of raw data file (data_17_0.h5, as hdf), clean data file (data_clean.h5, as data_clean), and example data files (data_example.csv, hsproduct2digit.csv)
+    Inputs:     None
+    ________________________
+    Outputs:    dict_load - dictionary of raw data file (data_17_0.h5, as data_full), clean data file (data_full_clean.h5, as data_full_clean),
+                and corresponding example data files (both pulled from data_example.h5 - data_sample, data_2digit)
+    ________________________
     '''
     # load dict paths
     dict_paths = load_paths(gdrive = False, ide = True)
@@ -109,25 +114,13 @@ def data_load():
     return dict_load
 
 #%%
-# check the data_load function works
-def check_func():
-    data_load()
-
-    loader = data_load()['data_full_clean']
-    loader.keys()
-
-    temp = loader.get('/train')
-    temp = data_load()['data_sample']
-    return temp
-
-# check_func().head()
-
-#%%
 # main func
 def main():
     '''
-    inputs: none
-    output: data dict from load data (consisting of raw data hdf5 file and data_clean for both full and example datasets)
+    Inputs:     None (draw from data_load() above)
+    ________________________
+    Outputs:    dict_load - data dict from load data (consisting of raw data hdf5 file and data_clean for full, sample, and 2_digit datasets)
+    ________________________
     '''
     print("##################################################")
     print('Loading data...')
