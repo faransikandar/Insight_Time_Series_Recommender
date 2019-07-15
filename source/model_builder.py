@@ -12,7 +12,12 @@ from keras.layers import advanced_activations, Concatenate, Dense, Dot, Dropout,
 from keras.models import load_model, Model, Sequential
 from keras.utils import np_utils
 
-from source.data_loader import *
+# acrobatics for matplotlib on Mac OSX
+import matplotlib as mpl
+mpl.use('TkAgg')
+import matplotlib.pyplot as plt
+
+from source.data_load import *
 
 #%%
 # code partially inspired from https://github.com/TannerGilbert/Tutorials/blob/master/Recommendation%20System/Recommendation%20System.ipynb
