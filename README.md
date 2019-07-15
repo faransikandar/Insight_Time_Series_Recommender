@@ -1,16 +1,16 @@
 # Insight Time Series Recommender
 
-Machine learning to recommend export growth areas across countries, and products, and time.
+Deep learning to recommend export growth areas across countries, and products, and time.
 
 ## Project Overview
 
-How do investors and central governments determine where to invest in an economy? While time series forecasting is one potential way of predicting growth in a given sector over time, there are not good methods for comparing multiple sectors across multiple countries over time. More, these forecasts are a reasonable measure of the state of the world "as it is" changing, but are not necessarily economically sound recommendations of how a country "should" change - i.e. based on what is easiest for them, their relative strengths, and similarities to other economies.
+How do investors and central governments determine where to invest in an economy? While time series forecasting is one potential way of predicting growth in a given sector over time, there are not good methods for comparing multiple sectors across multiple countries over time. More, while these forecasts are a reasonable measure of the state of the world "as it is" changing, they are not necessarily economically sound recommendations of how a country "should" change - i.e. based on what is easiest for them, their relative strengths, and similarities to other economies.
 
 In order to solve this problem, I take a recommendations-oriented approach to forecasting rather than a purely predictions-oriented approach.
 
 This project combines collaborative filtering recommender systems and time series analysis in order to provide recommendations for export growth across 250 countries and territories, over 5,000 product areas, and 20 years. The model is trained on data from 1995-2004 and makes recommendations on data from 2005-2014.
 
-The final product includes a command line interface - the user can input a country/territory and the model will recommend the top 50 product/service areas which that country/territory should export, based on location-location similarity.
+The source code includes a command line interface - the user can input a country/territory and the model will recommend the top 50 product/service areas which that country/territory should export, based on measured country-product similarities.
 
 Slides describing this project and be found here: http://bit.ly/time-rec-demo
 
@@ -22,9 +22,65 @@ Slides describing this project and be found here: http://bit.ly/time-rec-demo
 - **build** : Include scripts that automate building of a standalone environment
 - **static** : Any images or content to include in the README or web framework if part of the pipeline
 
+## Requisites
+
+- Linux or MacOS. Windows may work as well, but I have not tested it.
+- `git`
+- `conda`
+  * Install [here](https://docs.conda.io/projects/conda/en/latest/user-guide/install/)
+- `pip`
+  * For example, on Ubuntu 18.04 run `sudo apt-get install python3-pip`
+- `python` (Python version 3.6)
+- `virtualenv`
+  * If everything else is installed, you should be able to install `virtualenv` by running `pip3 install virtualenv`
+
 ## Setup
-Clone repository and update python path
+
+1. Clone repository.
 ```
+git clone https://github.com/faransikandar/Insight_Time_Series_Recommender.git
+```
+
+2. Set up a conda environment and activate it. (Here, the environemnt is called 'time-series-rec', but you can call it whatever you like.)
+```
+cd Insight_Time_Series_Recommender
+conda create --name time-series-rec pyton=3.6
+conda activate time-series-rec
+```
+
+3. Install the packages from `requirements.txt`
+```
+pip install -r requirements.text
+```
+
+## Run an Example Script - Clean, Train, and Make Recommendations
+
+## Run Individual Files (e.g. train your own model)
+
+### Clean Data
+
+### Train a Model
+
+### Make Recommendations
+
+## Results
+
+### Collaborative Filtering Over Time - An Example
+
+Collaborative filtering works well for static time slices. But how might recommendations change over time? We want to be able to account for changes in trends over time (note the arrows signifying an increase in England's trade in technology from 1995 to 2005).
+
+![Collab Filtering Over Time](Insight_Collab_Filtering_Over_Time.png)
+
+We get good results for many countries. For example, we are able to make recommendations for Ireland that Information Communication Technologies (ICT), Transport, and Financial Services would be its highest growth export sectors. Indeed, even though their economy was predominantly machinery and chemicals-focused in 1995, they shifted largely to services including ICT, Transport, and Financial by 2014 (or even sooner).
+
+![Collab Filtering Over Time](Insight_Collab_Filtering_Over_Time.png)
+
+![Ireland 1995](Insight_Ireland_1995.png)
+
+![Ireland 2014](Insight_Ireland_2014.png)
+
+http://atlas.cid.harvard.edu/
+
 repo_name=Insight_Project_Framework # URL of your new repository
 username=mrubash1 # Username for your personal github account
 git clone https://github.com/$username/$repo_name

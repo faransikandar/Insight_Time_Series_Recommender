@@ -1,16 +1,9 @@
 #%%
 import os
-import sys
-import time
-import warnings
-import math
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pickle
-
-from collections import Counter, defaultdict, OrderedDict
-from itertools import chain
 from keras.callbacks import ModelCheckpoint
 from keras.models import load_model, Model, Sequential
 from sklearn.metrics.pairwise import cosine_similarity
