@@ -4,8 +4,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pickle
-from keras.callbacks import ModelCheckpoint
+import tensorflow as tf
+from keras import optimizers, regularizers
+from keras.callbacks import ModelCheckpoint, History, ReduceLROnPlateau
+from keras.constraints import maxnorm
+from keras.layers import advanced_activations, Concatenate, Dense, Dot, Dropout, Embedding, Flatten, Input, LSTM, Reshape
 from keras.models import load_model, Model, Sequential
+from keras.utils import np_utils
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
@@ -172,14 +177,14 @@ def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_f
     history
 
     # Plot the history of the model - some previously run history files just dicts, so need to try two methods
-    try:
-        plt.plot(history['loss'])
-        plt.xlabel('Number of Epochs')
-        plt.ylabel('Training Error')
-    except:
-        plt.plot(history.history['loss'])
-        plt.xlabel('Number of Epochs')
-        plt.ylabel('Training Error')
+    # try:
+    #     plt.plot(history['loss'])
+    #     plt.xlabel('Number of Epochs')
+    #     plt.ylabel('Training Error')
+    # except:
+    #     plt.plot(history.history['loss'])
+    #     plt.xlabel('Number of Epochs')
+    #     plt.ylabel('Training Error')
 
     # Evaluate model - can set = and add callbacks in order to get history?
     # print(model.metrics_names)
@@ -374,12 +379,12 @@ def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_f
 #%%
 def main():
 
-    dict_data_key_raw = 'data_full'
-    dict_data_key_clean = 'data_full_clean'
-    model_name = 'model_5L_full-04-0.8404.hdf5'
+    dict_data_key_raw = 'data_2digit'
+    dict_data_key_clean = 'data_2digit_clean'
+    model_name = 'model_5L_full_2digit-10-0.3169.hdf5'
     full_features = True
-    history_name = 'history_5L_full'
-    predictions_key = 'df_predictions_5L_full'
+    history_name = 'history_5L_full_2digit'
+    predictions_key = 'df_predictions_5L_full_2digit'
     n_predictions = 50
 
     print("##################################################")

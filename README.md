@@ -15,6 +15,7 @@ The source code includes a command line interface - the user can input a country
 Slides describing this project and be found here: http://bit.ly/time-rec-demo
 
 ## Motivation for this project format:
+
 - **Insight_Project_Framework** : Put all source code for production within structured directory
 - **tests** : Put all source code for testing in an easy to find location
 - **configs** : Enable modification of all preset variables within single directory (consisting of one or many config files for separate tasks)
@@ -48,20 +49,45 @@ conda create --name time-series-rec pyton=3.6
 conda activate time-series-rec
 ```
 
-3. Install the packages from `requirements.txt`
+3. Install pip within your conda environment and install the project dependencies from `requirements.txt`
 ```
-pip install -r requirements.text
+conda install pip
+pip install -r build.requirements.txt
 ```
 
 ## Run an Example Script - Clean, Train, and Make Recommendations
+
+Note: For ease, scripts are preceded by a `source` prefix, denoting the directory they're housed in.
+
+Clean, Train, and Make Recommendations in one pipeline - using 2-digit product/service area specificity (the full model is trained on 6-digit specificity). This will take ~5 min.
+```
+python -m source.time_series_rec_example
+```
 
 ## Run Individual Files (e.g. train your own model)
 
 ### Clean Data
 
+Clean data by running the following script.
+```
+python -m source.data_cleaner
+```
+
 ### Train a Model
 
+Train or load a model by running  the following script.
+```
+python -m source.model_builder
+```
+
 ### Make Recommendations
+
+Make recommendations for a country by running the following script. *Note that you will be prompted for a user input for the country/territory name.*
+
+Spelling/capitalization matters. Also please note that some of the broader regions (e.g. Asia) do not have recommendation data available, although they appear in the options list.
+```
+python -m source.rec_predicter
+```
 
 ## Results
 
@@ -69,13 +95,15 @@ pip install -r requirements.text
 
 Collaborative filtering works well for static time slices. But how might recommendations change over time? We want to be able to account for changes in trends over time (note the arrows signifying an increase in England's trade in technology from 1995 to 2005).
 
-![Collab Filtering Over Time](Insight_Collab_Filtering_Over_Time.png)
+![Collab Filtering Over Time](images/Insight_Collab_Filtering_Over_Time.png)
 
 ### Positive Results - Making Recommendations that  Accurately Predict Growth
 
-We get good results. For example, we are able to make recommendations for Ireland that Information Communication Technologies (ICT), Transport, and Financial Services would be its highest growth export sectors. Indeed, *even though their economy was predominantly machinery and chemicals-focused in 1995*, they shifted largely to services including ICT, Transport, and Financial by 2014 (or even sooner).
+We get good results. For example, we are able to make recommendations for Ireland that Information Communication Technologies (ICT), Transport, and Financial Services would be its highest growth export sectors. Indeed, *even though its economy was predominantly machinery and chemicals-focused in 1995*, it shifted largely to services including ICT, Transport, and Financial by 2014.
 
-![Insight Recs Ireland](Insight_Recs_Ireland.png)
+*To be clear, these product/service areas were not part of the training data, nor were they the highest growth areas in Ireland during the training period - yet we still predicted (i.e. recommended) them to be the highest growth areas!*
+
+![Insight Recs Ireland](images/Insight_Recs_Ireland.png)
 
 #
 repo_name=Insight_Project_Framework # URL of your new repository
@@ -194,11 +222,9 @@ pip install -r requiremnts
 ## Project Structure
 ```
 ├── LICENSE
-├── README.md             <- The top-level README for developers using this project.
-├── rec_output.png        <- Sample output
+├── README.md             <- The top-level README for developers using this project
 │
 ├── build
-│   ├── environment.sh    <- COCO Data Set for DeepLab testing.
 │   └── requirements.txt  <- The requirements file for reproducing the analysis environment
 │
 ├── data
@@ -206,6 +232,8 @@ pip install -r requiremnts
 │   └── preprocessed      <- data_prep_{}.h5 files including intermediate calculations
 │   └── processed         <- data_clean_{}.h5 files used in final inference
 │   └── raw               <- full, raw data used for training full model
+│
+├── images                <- Images used in README.md, including sample output
 │
 ├── models                <- Various pre-trained models
 │
@@ -218,5 +246,5 @@ pip install -r requiremnts
 │
 ├── requirements.txt      <- The requirements file for reproducing the analysis environment
 │
-└── README-ECON.md        <- Detailed insights into the economic theory behind the model
+└── README-ECON.md        <- Detailed README outlining the economic theory behind the model
 ```

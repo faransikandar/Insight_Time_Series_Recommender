@@ -428,7 +428,7 @@ def data_cleaning(df):
     return dict_cleaned
 
 def main():
-    dict_data_key_raw = 'data_full'
+    dict_data_key_raw = 'data_2digit'
     df = define_df_clean(dict_data_key_raw)
 
     print("##################################################")

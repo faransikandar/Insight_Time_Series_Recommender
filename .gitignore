@@ -7,7 +7,8 @@ tests
 *.DS_Store
 
 # ignore these specific files - they're too large for git!
-data/example/data_2digit_prep.h5
+build/environment.sh
+data/preprocessed/data_2digit_prep.h5
 data/preprocessed/data_full_prep.h5
 data/processed/data_full_clean.h5
 data/processed/data_predictions.h5

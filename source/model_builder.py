@@ -249,11 +249,11 @@ def main():
     None: trains model, evaluates, and saves files to model and history locations specified in call
     ________________________
     '''
-    dict_data_key_clean = 'data_sample_clean'
-    model_name = 'model_1L_sample'
-    n_layers = 1 # enter 1, 3, or 5
+    dict_data_key_clean = 'data_2digit_clean'
+    model_name = 'model_5L_full_2digit'
+    n_layers = 5 # enter 1, 3, or 5
     full_features = True
-    history_name = 'history_1L_sample'
+    history_name = 'history_5L_full_2digit'
     model_load = False
 
     print("##################################################")
