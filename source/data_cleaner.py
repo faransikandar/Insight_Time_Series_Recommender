@@ -7,10 +7,10 @@ import pandas as pd
 from source.data_loader import *
 
 #%%
-# Recommender system code inspired from https://github.com/WillKoehrsen/wikipedia-data-science/blob/master/notebooks/Book%20Recommendation%20System.ipynb
+# recommender system code inspired from https://github.com/WillKoehrsen/wikipedia-data-science/blob/master/notebooks/Book%20Recommendation%20System.ipynb
 
 #%%
-# If using Google Colab
+# if using Google Colab
 '''
 # check relevant TF, keras, and GPU connections
 
@@ -36,12 +36,15 @@ from google.colab import drive
 drive.mount('/content/gdrive')
 '''
 
+#%%
 def group_sum(df, groups, targets, reset_index = True):
     '''
-    input:  data = pandas df to groupby sum
-            groups = list of features to groupbym e.g. ['location_id','year']
-            targets = list variables to sum e.g. ['export_value']
-    output: groupby sum
+    Inputs:     data - pandas df to groupby sum
+                groups - list of features to groupbym e.g. ['location_id','year']
+                targets - list variables to sum e.g. ['export_value']
+    ________________________
+    Outputs:    groupby sum - used to group export/import values by country and year (useful for normalizing by country/year later)
+    ________________________
     '''
     if reset_index == True:
         df_groupsum = df.groupby(groups)[targets].sum().reset_index() # can also do .agg('sum')
@@ -52,10 +55,12 @@ def group_sum(df, groups, targets, reset_index = True):
 #%%
 def data_filter(df,filter,values):
     '''
-    input:  df: pandas df to cut
-            filter: single var to filter by e.g. year
-            value: list or any iterable of filter value(s)
-    output: df filtered by value
+    Inputs:     df: pandas df to cut
+                filter: single var to filter by e.g. year
+                value: list or any iterable of filter value(s)
+    ________________________
+    Outputs:    df filtered by value
+    ________________________
     '''
     df_filter = df.loc[df[filter].isin(values)]
     return df_filter
@@ -63,9 +68,25 @@ def data_filter(df,filter,values):
 #%%
 # normalize by country and year - this may be redundant since we already made export_pct
 def norm_minmax(data,targets):
+    '''
+    Inputs:     data - dataframe to perform operations on
+                targets - target variables to normalize (can be list of strings of column names)
+    ________________________
+    Outputs:    min_max normalized values for target variables (can do multiple at once)
+                (normalized means output will be in [0,1])
+    ________________________
+    '''
     return (data[targets]-data[targets].min())/(data[targets].max()-data[targets].min())
 
 def norm_std(data,targets):
+    '''
+    Inputs:     data - dataframe to perform operations on
+                targets - target variables to normalize (can be list of strings of column names)
+    ________________________
+    Outputs:    standardized values for target variables (can do multiple at once)
+                (standardized means output will have mean = 0 and standard deviation = 1)
+    ________________________
+    '''
     return (data[targets]-data[targets].mean())/(data[targets].std())
 
 #%%
@@ -92,6 +113,7 @@ def define_df_clean(dict_data_key_raw):
     # preview keys in HDF
     hdf.keys()
 
+    # KEY STEP - lookup dict_data_key raw to make sure you perform ops on correct dataframe
     if dict_data_key_raw == 'data_full':
         df = hdf.get('/country_hsproduct6digit_year') # 6 digit
 
@@ -119,11 +141,12 @@ def define_df_clean(dict_data_key_raw):
 #%%
 def data_cleaning(df):
     '''
-    Inputs:
-    df: dataframe defined from above
+    Inputs:         df - dataframe defined from above
     ________________________
     Outputs:
-    dict_cleaned: dictionary including pandas dfs {'clean':clean,'prep':prep} of cleaned data as well as various preprocessed data steps
+    dict_cleaned:   dict_cleaned - {'clean':clean, 'prep':prep}
+                    dictionary including pandas dfs {'clean':clean,'prep':prep} of cleaned data as well as various preprocessed data steps
+                    see defs for clean and prep below:
 
     # define the clean files
     clean = ( {'train':train, 'test':test} )
@@ -135,8 +158,13 @@ def data_cleaning(df):
     'test_pct_norm':test_pct_norm, 'test_pct_std':test_pct_std, 'test_trend_std':test_trend_std} )
     ________________________
     '''
-    # Calculate totals by country and year
-    # df6.groupby(['location_id','year']).sum().reset_index() # if don't do reset_index(), then loc and year b/c part of index - does all columns
+
+    '''
+    # STEP 1 - DATA GROUPING/FILTERING
+    '''
+
+    # calculate totals by country and year
+    # df.groupby(['location_id','year']).sum().reset_index() # if don't do reset_index(), then loc and year b/c part of index - does all columns
     print("##################################################")
     print('Calculating grouped sums for export values...')
 
@@ -145,7 +173,6 @@ def data_cleaning(df):
     .rename(index=str, columns={'export_value':'export_total_loc_year', 'import_value':'import_total_loc_year'}) )
 
     df_groupsum
-
     df_groupsum.describe()
 
     # filter the data for a 10 year TRAIN range
@@ -191,6 +218,10 @@ def data_cleaning(df):
     .sum().reset_index().rename(index=str, columns={'export_value':'export_period_total', 'import_value':'import_period_total'}) )
 
     df_05_14_sum_total
+
+    '''
+    # STEP 2 - CALCULATE TRENDS
+    '''
 
     print("##################################################")
     print('Calculating time trends for train and test periods...')
@@ -245,8 +276,8 @@ def data_cleaning(df):
 
     df_95_04_trend[~mask_neg]
 
-    # df_95_04_trend.loc[~mask_pos, 'import_trend'] = df_95_04_trend.loc[mask_pos, 'import_trend'].max()
-    # df_95_04_trend.loc[~mask_neg, 'import_trend'] = df_95_04_trend.loc[mask_neg, 'import_trend'].min()
+    # df_95_04_trend.loc[~mask_pos, 'import_trend'] = df_95_04_trend.loc[mask_pos, 'import_trend'].max() # use this if you want to impute with global max
+    # df_95_04_trend.loc[~mask_neg, 'import_trend'] = df_95_04_trend.loc[mask_neg, 'import_trend'].min() # use this if you want to impute with global min
     df_95_04_trend['import_trend'] = np.where(~mask_pos, df_95_04_trend['import_period2'], df_95_04_trend['import_trend']) # if div by 0, replaces inf w/ export_period2 value
     df_95_04_trend['import_trend'] = np.where(~mask_neg, -df_95_04_trend['import_period2'], df_95_04_trend['import_trend']) # if div by 0, replaces -inf w/ -export_period2 value
 
@@ -259,8 +290,8 @@ def data_cleaning(df):
     mask_neg
     df_05_14_trend[~mask_neg]
 
-    # df_05_14_trend.loc[~mask_pos, 'import_trend'] = df_05_14_trend.loc[mask_pos, 'import_trend'].max()
-    # df_05_14_trend.loc[~mask_neg, 'import_trend'] = df_05_14_trend.loc[mask_neg, 'import_trend'].min()
+    # df_05_14_trend.loc[~mask_pos, 'import_trend'] = df_05_14_trend.loc[mask_pos, 'import_trend'].max() # use this if you want to impute with global max
+    # df_05_14_trend.loc[~mask_neg, 'import_trend'] = df_05_14_trend.loc[mask_neg, 'import_trend'].min() # use this if you want to impute with global min
     df_05_14_trend['import_trend'] = np.where(~mask_pos, df_05_14_trend['import_period2'], df_05_14_trend['import_trend']) # if div by 0, replaces inf w/ export_period2 value
     df_05_14_trend['import_trend'] = np.where(~mask_neg, -df_05_14_trend['import_period2'], df_05_14_trend['import_trend']) # if div by 0, replaces -inf w/ -export_period2 value
 
@@ -277,7 +308,8 @@ def data_cleaning(df):
     test = pd.merge(test, df_05_14_trend, on=['location_id','product_id'], how='inner')
     test
 
-    # Define train and test - make sure to normalize AFTER this so as not to have data leakage
+    # define train and test - make sure to normalize AFTER this so as not to have data leakage between train and test
+    # need to copy deep = True to make new df
     cols = ['location_id','product_id','year','export_value','export_total_loc_year','export_period1','export_period2','export_period_total','export_trend']
     train = train.copy(deep=True)
     train = train[cols]
@@ -287,16 +319,20 @@ def data_cleaning(df):
     test = test.copy(deep=True)
     test
 
-    # Calculate product percent of total exports for that country and year
+    # calculate product percent of total exports for that country and year
     train['export_pct'] = (train['export_value']/train['export_total_loc_year'])
     train.head()
 
     test['export_pct'] = (test['export_value']/test['export_total_loc_year'])
     test.head()
 
+    '''
+    # STEP 3 - CALCULATE NORMALIZATIONS/STANDARDIZATIONS
+    '''
+
     print("##################################################")
     print('Calculating various normalizations/standardizations (this may take several minutes on large datasets)...')
-    # norm across all countries and years
+    # norm across all countries and years for train
     train['export_val_norm_all'] = norm_minmax(data=train,targets=['export_value'])
     train['export_val_std_all'] = norm_std(data=train,targets=['export_value'])
     train['export_pct_norm_all'] = norm_minmax(data=train,targets=['export_pct'])
@@ -304,6 +340,7 @@ def data_cleaning(df):
     train.describe()
     train
 
+    # norm across all countries and years for test
     test['export_val_norm_all'] = norm_minmax(data=test,targets=['export_value'])
     test['export_val_std_all'] = norm_std(data=test,targets=['export_value'])
     test['export_pct_norm_all'] = norm_minmax(data=test,targets=['export_pct'])
@@ -312,8 +349,9 @@ def data_cleaning(df):
     test
 
     # perform various normalization strategies, grouping by country/year/across all/etc and for raw values vs percents of total
-    # normalize by country and year ??? doesn't seem to get me what I want - possible that you don't WANT to normalize by country and year, because perhaps overall global trade of goods is more important
-    # takes some processing time - may be a more efficient way to do this
+    # normalize by country and year ??? doesn't seem to get me what I want - possible that you don't WANT to normalize by country and year,
+    # because perhaps overall global trade of goods is more important
+    # takes quite a bit of processing time (~30 min for data_full) - may be a more efficient way to do this
 
     train_val_norm = ( train.groupby(['location_id','year']).apply(norm_minmax, targets='export_value').to_frame()
     .rename(index=str, columns={'export_value':'export_val_norm'}).reset_index() )
@@ -352,7 +390,7 @@ def data_cleaning(df):
     .rename(index=str, columns={'export_trend':'export_trend_std'}).reset_index() )
 
     '''
-    # same as
+    # above is same as
     # df_.groupby(['location_id','year']).apply( lambda x: (x['export_pct']-x['export_pct'].min())/(x['export_pct'].max()-x['export_pct'].min()) )
     # do product_id as well - otherwise indices lost?
     # df_train.groupby(['location_id','year','product_id']).apply(norm_minmax, targets='export_pct').to_frame().reset_index()
@@ -362,10 +400,11 @@ def data_cleaning(df):
     # df.groupby(['location_id','year'])['export_value'].sum().reset_index()
     '''
 
+    # check some outputs for normalization/standardization
     train_pct_std
     test_trend_norm.describe()
 
-    # merge the pct and trend norms in
+    # merge the pct and trend norms into train/test
     train_temp = train.join([train_val_norm['export_val_norm'], train_val_std['export_val_std'], train_pct_norm['export_pct_norm'], train_pct_std['export_pct_std'], train_trend_norm['export_trend_norm'], train_trend_std['export_trend_std']])
     #train_temp = pd.merge(train, train_pct_norm['export_pct_norm'], train_pct_std['export_pct_std'], train_trend_norm['export_trend_norm'], left_index=True, right_index=True)
     train = train_temp
@@ -376,9 +415,11 @@ def data_cleaning(df):
     test = test_temp
     test
 
-    #df_train['export_pct_norm'] = (df_train['export_pct']-df_train['export_pct'].min())/(df_train['export_pct'].max()-df_train['export_pct'].min())
+    '''
+    # STEP 4 - CALCULATE BASIC TIME TREND CLASSIFICATIONS
+    '''
 
-    # Classify -1/0/1 for export trend for TRAIN
+    # classify -1/0/1 for export trend for TRAIN
     mask_pos = train['export_trend'] > 0
     mask_neg = train['export_trend'] < 0
     mask_zero = train['export_trend'] == 0
@@ -397,6 +438,10 @@ def data_cleaning(df):
 
     # Make percentile rank for export trend for TEST
     test['export_trend_pct_rank'] = test['export_trend'].rank(pct=True)
+
+    '''
+    # STEP 5 - FINAL CLEANING
+    '''
 
     # Final NaN cleaning
     train[train.isnull()]
@@ -430,17 +475,24 @@ def data_cleaning(df):
 
     return dict_cleaned
 
+#%%
+# main func
 def main():
+    # define variables to be called in functions
+
+    # define the dataframe to perform cleaning on
     dict_data_key_raw = 'data_2digit'
     df = define_df_clean(dict_data_key_raw)
 
     print("##################################################")
     print('This may take a minute. The data is being cleaned for: ', dict_data_key_raw)
 
+    # clean the df named by dict_data_key_raw
     data_cleaned = data_cleaning(df)
     clean_dict = data_cleaned['clean']
     prep_dict = data_cleaned['prep']
 
+    # name output files
     if dict_data_key_raw == 'data_full':
         file_out_clean = 'processed/data_full_clean.h5'
         file_out_prep = 'preprocessed/data_full_prep.h5'
@@ -451,7 +503,7 @@ def main():
         file_out_clean = 'processed/data_2digit_clean.h5'
         file_out_prep = 'preprocessed/data_2digit_prep.h5'
 
-    ## Export data to HDF5
+    # export data to HDF5
     # always make train the first item in the dict for organization's sake + necessary when first creating file to name the first key
     directory = os.path.dirname(os.path.abspath('abcdef')) # essentially os.getcwd()
     directory
