@@ -81,7 +81,7 @@ def define_df_clean(dict_data_key_raw):
     df: dataframe of trade data to process in data_cleaning() - either 6digit (full), 2digit, or sample
     ________________________
     '''
-    # load the data using data_load()
+    # load the data using data_load()()
     dict_data = data_load()
     dict_data
 
@@ -108,8 +108,11 @@ def define_df_clean(dict_data_key_raw):
         df
 
     # filter out the negatives
-    mask = df['export_value'] < 0
-    df = df[~mask]
+    try:
+        mask = df['export_value'] < 0
+        df = df[~mask]
+    except:
+        df
 
     return df
 
