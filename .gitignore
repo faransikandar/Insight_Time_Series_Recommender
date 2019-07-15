@@ -1,7 +1,7 @@
 # ignore this entire directory - the files are too large for git!
-configs
+configs/
 data/raw_unused
-tests
+tests/
 
 # ignore any files w/ this extension
 *.DS_Store

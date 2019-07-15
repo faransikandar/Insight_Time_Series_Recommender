@@ -53,40 +53,17 @@ conda install pip
 pip install -r build.requirements.txt
 ```
 
-## Run an Example Script - Clean, Train, and Make Recommendations
+## Run an Example Script - Clean Data, Train, and Make Recommendations
 
 Note: For ease, scripts are preceded by a `source` prefix, denoting the directory they're housed in.
 
-Clean, Train, and Make Recommendations in one pipeline - using 2-digit product/service area specificity (the full model is trained on 6-digit specificity). This will take ~5 min.
+Clean Data, Train, and Make Recommendations in one pipeline - using 2-digit product/service area specificity (the full model is trained on 6-digit specificity). This will take ~5 min.
 
 **Note that you will be prompted for a user input for the country/territory name.**
 
 Spelling/capitalization matters. Also please note that some of the broader regions (e.g. Asia) do not have recommendation data available, although they appear in the options list.
 ```
 python -m source.time_series_rec_example
-```
-
-## Run Individual Files (e.g. train your own model)
-
-### Clean Data
-
-Clean data by running the following script.
-```
-python -m source.data_cleaner
-```
-
-### Train a Model
-
-Train or load a model by running  the following script.
-```
-python -m source.model_builder
-```
-
-### Make Recommendations
-
-Make recommendations for a country by running the following script.
-```
-python -m source.rec_predicter
 ```
 
 ## Results
