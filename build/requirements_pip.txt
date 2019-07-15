@@ -1,0 +1,7 @@
+# To install these Python dependencies, please type:
+# pip install -r build/requirements_pip.txt
+
+# model building
+keras==2.2.4
+tensorflow==1.13.1
+scikit-surprise==1.0.6

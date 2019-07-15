@@ -34,18 +34,18 @@ git clone https://github.com/faransikandar/Insight_Time_Series_Recommender.git
 2. Set up a conda environment and activate it. (Here, the environemnt is called 'time-series-rec', but you can call it whatever you like.)
 ```
 cd Insight_Time_Series_Recommender
-conda create --name time-series-rec python=3.6
+conda create --name time-series-rec python=3.6.8
 conda activate time-series-rec
 ```
 
 3. Install pip within your conda environment and install the project dependencies from `requirements.txt`
 ```
-conda install pip
-pip install numpy==1.16.2
-pip install -r build/requirements.txt
+conda install --file build/requirements_conda.txt
+pip install -r build/requirements_pip.txt
 ```
-* pip should already come with conda, but in case it isn't there
-* scikit-surprise (used for alternative algorithms) forces a manual install of numpy first - I don't have a clear solution for this yet
+* pip should already come with conda, but in case it isn't there you can use `conda install pip` - check installations in current environment with `conda list`
+* separate installs are needed for conda and pip because different packages are available from each
+* note that order matters here (conda install goes first) because scikit-surprise (installed with pip, used for alternative algorithms) forces a manual install of numpy first (installed with conda)
 
 ## Run an Example Script - Clean Data, Train, and Make Recommendations
 
