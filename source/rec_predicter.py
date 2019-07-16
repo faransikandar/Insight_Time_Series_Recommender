@@ -226,11 +226,9 @@ def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_f
     for i in range(len(predictions_raw)):
         predictions.append((predictions_raw[i] * test_export_value_std) + test_export_value_mean)
 
-    predictions[:20]
     len(predictions)
     type(predictions)
     # currently a list of arrays
-    predictions[0:5]
 
     # concatenate into a single array
     predictions = np.concatenate(predictions, axis=0)
