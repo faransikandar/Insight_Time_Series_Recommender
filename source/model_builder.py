@@ -160,6 +160,7 @@ def define_model(dict_data_key_clean, model_name, n_layers, full_features, histo
     '''
 
     # setup model for training if model not already on disk
+    # name the model as you wish - the epoch and loss are appended automatically after the base model name
     if model_load == False:
     # set up path for saving model and history
         if gdrive == True:
