@@ -86,7 +86,7 @@ If you'd like to be able to do very fasts runs on the data (cleaning, training, 
 
 ### Collaborative Filtering Over Time - An Example
 
-Collaborative filtering works well for static time slices. But how might recommendations change over time? We want to be able to account for changes in trends over time (note the arrows signifying an increase in England's trade in technology from 1995 to 2005).
+Here, we outline a two-country, three-product recommendation scenario. Recommendations are made based on country-product (i.e. user-item) similarity. Collaborative filtering recommenders work well for static time slices. But how might recommendations change over time? We want to be able to account for changes in trends over time (note the arrows signifying an increase in England's trade in "technology" from 1995 to 2005).
 
 ![Collaborative Filtering Over Time](images/Insight_Collab_Filtering_Over_Time.png)
 
