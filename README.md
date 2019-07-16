@@ -50,9 +50,9 @@ pip install -r build/requirements_pip.txt
 
 Note: For ease, scripts are preceded by a `source` prefix, denoting the directory they're housed in.
 
-Clean Data, Train, and Make Recommendations in one pipeline - using 2-digit product/service area specificity (the full model is trained on 6-digit specificity). This will take ~5 min.
+Clean Data, Train, and Make Recommendations in one pipeline - using 2-digit product/service area specificity (the full model is trained on 6-digit specificity). This will take ~3-5 min.
 
-**NOTE ON USER INPUT:** You will be prompted for a user input for the country/territory name. Spelling/capitalization matters. Also please note that some of the broader regions (e.g. Asia) do not have recommendation data available, although they appear in the options list.
+**NOTE ON USER INPUT:** You will be prompted for a user input for the country/territory name near the end of the script. Spelling and capitalization matters. Please note that some of the broader regions (e.g. Asia) do not have recommendation data available, although they appear in the options list.
 
 **NOTE ON DISPLAY OF OUTPUTS:*** The output table is a rather wide data table, so it's best to use a full screen view in your terminal window.
 
@@ -72,6 +72,15 @@ If you'd like to be able to make recommendations on the full model, download `da
 - `model_load = True` (set to `False` if training from scratch - you will need a GPU)
 
 Leave the other variables as they are.
+
+If you'd like to be able to do very fasts runs on the data (cleaning, training, predicting), you can train on a 2-country sample of data. In the `main()` section of each of the main processing scripts (`data_cleaner.py`, `model_builder.py`, and `rec_predicter.py`), set the following variables:
+- `dict_data_key_raw = 'data_sample'`
+- `dict_data_key_clean = 'data_sample_clean'`
+- `model_name = 'model_5L_full_sample-10-0.1711.hdf5'` (set name to your liking if you'd like to train from scratch)
+- `model_history = 'model_5L_full_sample'` (set name to your liking if you'd like to train from scratch)
+- `model_load = True` (set to `False` if training from scratch - you will need a GPU)
+
+**NOTE ON MODEL NAMING** If you want to train a model from scratch, simply write the base name. The epoch and loss of the best model are checkpointed and added to the file name that is saved to the `models` directory.
 
 ## Results
 
