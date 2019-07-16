@@ -320,7 +320,7 @@ def make_predictions( dict_data_key_raw, dict_data_key_clean, model_name, full_f
     top_recs['export_pct_change_rank_loc'] = top_recs['export_pct_change_rank'].rank(method='min', ascending=False)
 
     # return only select columns
-    top_recs_display = top_recs[['product_id','name','export_period_test','export_pct_change','export_pct_change_rank_loc','predictions','pred_pct_change']]
+    top_recs_display = top_recs[['product_id','name','export_period_test','export_pct_change','export_pct_change_rank_loc','predictions','pred_pct_change']].reset_index()
 
     # top_recs.drop(['year','location_id','export_period_train','export_class'], axis=1) # alternative way of doing above
 
@@ -405,7 +405,7 @@ def main():
     # define variables to be called in make_predictions() function
     dict_data_key_raw = 'data_2digit'
     dict_data_key_clean = 'data_2digit_clean'
-    model_name = 'model_5L_full_2digit-10-0.3169.hdf5'
+    model_name = 'model_5L_full_2digit-10-0.3043.hdf5'
     full_features = True
     history_name = 'history_5L_full_2digit'
     predictions_key = 'df_predictions_5L_full_2digit'
