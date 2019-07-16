@@ -54,7 +54,7 @@ Clean Data, Train, and Make Recommendations in one pipeline - using 2-digit prod
 
 **NOTE ON USER INPUT:** You will be prompted for a user input for the country/territory name near the end of the script. Spelling and capitalization matters. Please note that some of the broader regions (e.g. Asia) do not have recommendation data available, although they appear in the options list.
 
-**NOTE ON DISPLAY OF OUTPUTS:*** The output table is a rather wide data table, so it's best to use a full screen view in your terminal window.
+**NOTE ON DISPLAY OF OUTPUTS:** The output table is a rather wide data table, so it's best to use a full screen view in your terminal window.
 
 ```
 python -m source.time_series_rec_example
@@ -80,7 +80,7 @@ If you'd like to be able to do very fasts runs on the data (cleaning, training, 
 - `model_history = 'model_5L_full_sample'` (set name to your liking if you'd like to train from scratch)
 - `model_load = True` (set to `False` if training from scratch - you will need a GPU)
 
-**NOTE ON MODEL NAMING** If you want to train a model from scratch, simply write the base name. The epoch and loss of the best model are checkpointed and added to the file name that is saved to the `models` directory.
+**NOTE ON MODEL NAMING:** If you want to train a model from scratch, simply write the base name. The epoch and loss of the best model are checkpointed and added to the file name that is saved to the `models` directory.
 
 ## Results
 
