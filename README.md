@@ -89,6 +89,8 @@ As a more specific example, we are able to make recommendations for Ireland that
 
 **To be clear, these product/service areas were not part of the training data, nor were they the highest growth areas in Ireland during the training period - yet we still predicted (i.e. recommended) them to be the highest growth areas!**
 
+### Recommendations for Ireland 2005-2014
+
 ![Recommendations Ireland](images/Insight_Recs_Ireland.png)
 
 ## Acknowledgements
