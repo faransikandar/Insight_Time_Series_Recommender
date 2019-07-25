@@ -37,20 +37,18 @@ conda create --name time-series-rec python=3.6.8
 conda activate time-series-rec
 ```
 
-3. Install pip within your conda environment and install the project dependencies from `requirements.txt`
+3. Install the project dependencies from `requirement_conda.txt` and `requirements_pip.txt`.
 ```
 conda install --file build/requirements_conda.txt
 pip install -r build/requirements_pip.txt
 ```
 * pip should already come with conda, but in case it isn't there you can use `conda install pip` - check installations in current environment with `conda list`
-* separate installs are needed for conda and pip because different packages are available from each
-* note that order matters here (conda install goes first) because scikit-surprise (installed with pip, used for alternative algorithms) forces a manual install of numpy first (installed with conda)
+* separate installs are needed for conda and pip, because different packages are available from each
+* note that order matters here (conda install goes first). this is because scikit-surprise (installed with pip, used for alternative algorithms) forces a manual install of numpy first
 
 ## Run an Example Script - Clean Data, Train, and Make Recommendations
 
-Note: For ease, scripts are preceded by a `source` prefix, denoting the directory they're housed in.
-
-Clean Data, Train, and Make Recommendations in one pipeline - using 2-digit product/service area specificity (the full model is trained on 6-digit specificity). This will take ~3-5 min.
+Clean Data, Train, and Make Recommendations in one pipeline - using 2-digit product/service area specificity (the full model is trained on 6-digit specificity). **This will take ~3-5 min.**
 
 **NOTE ON USER INPUT:** You will be prompted for a user input for the country/territory name near the end of the script. Spelling and capitalization matters. Please note that some of the broader regions (e.g. Asia) do not have recommendation data available, although they appear in the options list.
 
@@ -63,6 +61,8 @@ python -m source.time_series_rec_example
 ## Data Sources
 
 This project was developed using data from the ATLAS of Economic Complexity: http://atlas.cid.harvard.edu/
+
+## Running Custom Models
 
 If you'd like to be able to make recommendations on the full model, download `data_17_0.h5` from the downloads sections of the ATLAS website and place the file in the subdirectory `data/raw`. In the `main()` section of each of the main processing scripts (`data_cleaner.py`, `model_builder.py`, and `rec_predicter.py`), set the following variables:
 - `dict_data_key_raw = 'data_full'`
