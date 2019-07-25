@@ -10,7 +10,7 @@ It might seem odd to make predictions for country-level exports in this way. Her
   1) Countries are able to competitively produce exports which lie within or close to their current productive capabilities.
   2) Countries with similar capabilities overall will export similar products - and, hence, will have a similar distance to enter new product areas.
 
-As such, countries with similar export profiles (similar products/capabilities/complexities/distance to new products) can likely learn from each other's development pathways. These facts suggest that a recommender system may be a useful tool to leverage in order to derive recommendations or hypotheses about what product/service areas a country _should_ move into. (See http://atlas.cid.harvard.edu/learn for more information. Note that this is not quite the same as saying that countries with similar economic profiles follow similar development paths - it is unclear if this is actually borne out historically. However, shared development trajectories could certainly be an implication of economic complexity theory.)
+As such, countries with similar export profiles (similar products/capabilities/complexities/distance to new products) can likely learn from each other's development pathways. These facts suggest that a recommender system may be a useful tool to leverage in order to derive recommendations or hypotheses about what product/service areas a country _should_ move into. (See http://atlas.cid.harvard.edu/learn for more information.)
 
 The results can be validated against what actually happens in reality. Thus, we validate what we think _should_ happen against what _will_ or does _actually_ happen (training on 1995-2004, Period 1, and validating on 2005-2014, Period 2). This is a difficult problem to do validation for, noting that what countries "should" do is not necessarily what they "actually" do. What do I mean by what they "should" do vs. what they "actually" do?
 
@@ -54,11 +54,13 @@ When considering the model's recommendations, we should also keep in mind:
 
 3) The model validates what _should_ happen against what does _actually_ happen using cosine similarity (measured on rank of export growth percent). Because of the facts outlined above, it may actually be the case that what countries _should_ do is quite dissimilar from what countries _actually_ do. In this case, recommendations which are more differentiated from reality may actually be ideal - and we perhaps instead should look for a lower or more orthogonal cosine similarity score. It's hard to validate this problem outright - which is why it's important to combine these recommendations with individual quantitative and qualitative due diligence for each recommended product area, including modeling various forecasting scenarios.
 
+4) The idea that countries with similar economic complexity can learn from each other does not necessarily mean that countries with similar economic profiles follow similar development paths. It is unclear if this is actually borne out historically. However, shared development trajectories could certainly be an implication of economic complexity theory.
+
 Given these motivations (and problems), a deep-learning-based recommender system can provide an important avenue for helping solve some outstanding problems in economics and provide direct benefit to both investors and central governments.
 
 ## High-Level Findings
 
-1) Trade areas with large growth globally seem to dominate the top 10 recommendations for many countries (e.g. ICT, tourism, financial services, oil, etc.) Beyond the top 10, we begin to see more personalization specific to each country.
+1) Trade areas with large growth globally may dominate the top 10 recommendations for many countries (e.g. ICT, tourism, financial services, oil, etc.) Beyond the top 10, we begin to see more personalization specific to each country.
 
 2) Because the model is searching for similarly structured economies, and any change relative to 0 will be the easiest to detect, the model should be particularly good at making recommendations in areas where a country is lagging relative to its counterparts.
 
