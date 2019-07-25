@@ -112,7 +112,8 @@ This project was developed at the Insight Artificial Intelligence Fellowship. I 
 ├── README.md             <- The top-level README for developers using this project
 │
 ├── build
-│   └── requirements.txt  <- The requirements file for reproducing the analysis environment
+│   └── requirements_conda.txt  <- The conda requirements file for reproducing the analysis environment
+│   └── requirements_pip.txt    <- The pip requirements file for reproducing the analysis environment
 │
 ├── data
 │   ├── example           <- data_example.h5 dataset for running fast examples locally
@@ -130,8 +131,6 @@ This project was developed at the Insight Artificial Intelligence Fellowship. I 
 │   └── data_loader.py            <- Function for loading data in different modules
 │   └── model_builder.py          <- Build (train or load) DL models
 │   └── rec_predicter.py          <- Make predictions/recommendations
-│
-├── requirements.txt      <- The requirements file for reproducing the analysis environment
 │
 └── README-ECON.md        <- Detailed README outlining the economic theory behind the model
 ```
