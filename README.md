@@ -6,7 +6,7 @@ Combining deep learning recommender systems and time series analysis to recommen
 
 How do investors and central governments determine where to invest in an economy? While time series forecasting is one potential way of predicting growth in a given sector over time, there are not good methods for comparing multiple sectors across multiple countries over time. More, while these forecasts are a reasonable measure of the state of the world "as it is" changing, they are not necessarily economically sound recommendations of how a country "should" change - i.e. based on what is easiest for them, their relative strengths, and similarities to other economies.
 
-In order to solve this problem, I take a recommendations-oriented approach to forecasting rather than a purely predictions-oriented approach.
+In order to solve this problem, I take a recommendations-oriented approach to predicting rather than a purely forecasting-oriented approach.
 
 This project combines collaborative filtering recommender systems and time series analysis in order to provide recommendations for export growth across 250 countries and territories, over 5,000 product areas, and 20 years. The model is trained on data from 1995-2004 and makes recommendations on data from 2005-2014.
 
