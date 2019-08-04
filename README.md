@@ -42,6 +42,7 @@ conda activate time-series-rec
 conda install --file build/requirements_conda.txt
 pip install -r build/requirements_pip.txt
 ```
+* if you have multiple versions of Python, e.g. Python 2 and Python 3, you may need to use `pip3 install` instead of `pip install`
 * pip should already come with conda, but in case it isn't there you can use `conda install pip` - check installations in current environment with `conda list`
 * separate installs are needed for conda and pip, because different packages are available from each
 * note that order matters here (conda install goes first). this is because scikit-surprise (installed with pip, used for alternative algorithms) forces a manual install of numpy first
